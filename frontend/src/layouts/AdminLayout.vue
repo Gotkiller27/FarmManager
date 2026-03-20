@@ -30,22 +30,25 @@ const FishIcon = () =>
     h("path", { d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" }),
     h("circle", { cx: "12", cy: "12", r: "3" })
   ]);
-
+const FarmIcon = () =>
+  h("svg", { viewBox: "0 0 64 64", fill: "currentColor", class: "w-5 h-5" }, [
+    h("path", { d: "M32 4 L4 24 L4 60 H28 V40 H36 V60 H60 V24 Z" }) // exemple simple maison/ferme
+  ]);
 // STRUCTURE DU MENU
 const menu = [
-  { name: "Tableau de bord", icon: LayoutDashboard },
+  { name: "Tableau de bord", icon: LayoutDashboard , path:"/"},
   { 
     name: "Départements", 
     icon: Folder,
     children: [
-      { name: "Volaille", icon: Bird },
-      { name: "Bétail", icon: CowIcon },
-      { name: "Pisciculture", icon: FishIcon },
+      { name: "Volaille", icon: Bird ,  path:""},
+      { name: "Bétail", icon: CowIcon ,path:""},
+      { name: "Pisciculture", icon: FishIcon,path:"" },
     ]
   },
-  { name: "Gérants", icon: User },
-  { name: "Agents", icon: Users },
-  { name: "Utilisateurs", icon: Users },
+  { name: "Gérants", icon: User , path:"/managers"},
+  { name: "Agents", icon: Users ,path:"/agents"},
+  { name: "Utilisateurs", icon: Users , path:"/users"},
 ];
 
 const toggleSubMenu = (name) => {
@@ -72,7 +75,7 @@ const toggleSubMenu = (name) => {
       <div>
         <div class="px-6 mb-8 flex items-center gap-2">
           <div class="text-green-600">
-            <Sprout class="w-8 h-8 stroke-[2.5px]" />
+            <FarmIcon class="w-8 h-8 stroke-[2.5px]" />
           </div>
           <span class="text-[#065f46] font-bold text-2xl tracking-tight">FarmManager</span>
         </div>
@@ -98,7 +101,8 @@ const toggleSubMenu = (name) => {
 
                 <ul v-show="openMenus[item.name]" class="mt-1 ml-4 border-l-2 border-gray-50 space-y-1">
                   <li v-for="child in item.children" :key="child.name">
-                    <div
+                    <router-link
+                       :to="child.path"
                       @click="activeItem = child.name; sidebarOpen = false"
                       :class="[
                         'flex items-center gap-3 ml-4 px-4 py-2 rounded-lg cursor-pointer transition-all text-[14px] font-medium',
@@ -107,12 +111,14 @@ const toggleSubMenu = (name) => {
                     >
                       <component :is="child.icon" class="w-4 h-4" />
                       {{ child.name }}
-                    </div>
+                    </router-link>
                   </li>
                 </ul>
               </div>
 
-              <div v-else
+              <router-link v-else
+                :to="item.path"
+                
                 @click="activeItem = item.name; sidebarOpen = false"
                 :class="[
                   'flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 font-medium group',
@@ -124,7 +130,7 @@ const toggleSubMenu = (name) => {
                   :class="['w-5 h-5', activeItem === item.name ? 'text-[#16a34a]' : 'text-[#94a3b8] group-hover:text-gray-600']" 
                 />
                 <span>{{ item.name }}</span>
-              </div>
+              </router-link>
 
             </li>
           </ul>
