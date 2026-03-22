@@ -1,3 +1,6 @@
+import dotenv from "dotenv"
+dotenv.config()
+
 import mysql from "mysql2/promise";
 
 
@@ -7,7 +10,7 @@ const USER_DB = process.env.USER_DB ?? "avnadmin"
 const PASSWORD = process.env.PASSWORD
 const DB_NAME = process.env.DB_NAME
 
-const pool = mysql.createPool({
+const db = mysql.createPool({
   host: HOST, // host Aiven
   port: PORT_DB,                        // port Aiven
   user: USER_DB,
@@ -23,4 +26,4 @@ const pool = mysql.createPool({
   connectionLimit: 10
 });
 
-export default pool;
+export default db;
