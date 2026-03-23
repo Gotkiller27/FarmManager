@@ -53,7 +53,8 @@ const handleLogin = async () => {
 </button>
         <p class="mt-4 text-center text-sm text-gray-600">
   Pas encore de compte ? 
-  <router-link to="/signup" class="text-green-600 hover:underline font-medium">
+  <router-link to="/register"
+   class="text-green-600 hover:underline font-medium">
     Créer le premier accès Admin
   </router-link>
 </p>
