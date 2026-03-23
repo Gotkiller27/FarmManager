@@ -5,17 +5,16 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const form = ref({
-  nom: '',
-  prenom: '',
+  last_name: '',
+  first_name: '',
   email: '',
   password: '',
-  role: 'Admin', // J'ai mis Par défaut Admin pour la première création
-  departement: 'Direction',
+  role: 'admin0', // J'ai mis Par défaut Admin pour la première création
 })
 
 const handleSignup = async () => {
   try {
-    await api.post('/auth/signup', form.value)
+    await api.post('/auth/register', form.value)
     alert('Compte créé avec succès ! Connectez-vous maintenant.')
     router.push('/login')
   } catch (err) {
@@ -40,18 +39,18 @@ const handleSignup = async () => {
         <form @submit.prevent="handleSignup" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Prénom</label>
+              <label class="block text-sm font-medium text-gray-700">First_name</label>
               <input
-                v-model="form.prenom"
+                v-model="form.first_name"
                 type="text"
                 required
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Nom</label>
+              <label class="block text-sm font-medium text-gray-700">Last_name</label>
               <input
-                v-model="form.nom"
+                v-model="form.last_name" 
                 type="text"
                 required
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-green-500 focus:border-green-500"
@@ -81,32 +80,7 @@ const handleSignup = async () => {
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Rôle</label>
-              <select
-                v-model="form.role"
-                class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="Admin">Admin (Propriétaire)</option>
-                <option value="Gestionnaire">Gestionnaire</option>
-                <option value="Gerant">Gérant</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Département</label>
-              <select
-                v-model="form.departement"
-                required
-                class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="Direction">Direction</option>
-                <option value="Elevage">Élevage</option>
-                <option value="Pisciculture">Pisciculture</option>
-                <option value="Aviculture">Aviculture</option>
-              </select>
-            </div>
-          </div>
+          
 
           <div class="pt-4">
             <button

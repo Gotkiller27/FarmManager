@@ -1,5 +1,5 @@
 import { register, loginUser } from "../services/auth.service.js";
-
+import {getAllUsers} from "../services/users.service.js"
 const create = async (req, res, next) => {
 try {
 
@@ -54,6 +54,7 @@ const login = async (req,res,next)=>{
     }
         
 }
+
 
 export {
     create,
