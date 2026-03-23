@@ -6,30 +6,31 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const register = async (userData) => {
   try {
-    const { email, password, role } = userData;
+    // 1. Récupère TOUS les champs envoyés par le front
+    const { email, password, role, first_name, last_name } = userData;
 
-    if (!email || !password || !role) {
-      const err = new Error(
-        "Toutes les données ne sont pas reçues dans auth.service/register",
-      );
-      err.statusCode = 400
-      throw err
+    // 2. Vérification complète
+    if (!email || !password || !role || !first_name || !last_name) {
+      const err = new Error("Champs manquants (Nom, Prénom, Email, Password ou Rôle)");
+      err.statusCode = 400;
+      throw err;
     }
 
-    // Utilisation correcte de bcrypt.hash
     const passwordHashed = await bcrypt.hash(password, 10);
 
+    // 3. Mise à jour de la requête SQL pour inclure nom et prénom
     const [result] = await db.query(
-      "INSERT INTO users (email, password, role) VALUES (?, ?, ?)",
-      [email, passwordHashed, role],
+      "INSERT INTO users (email, password, role, first_name, last_name) VALUES (?, ?, ?, ?, ?)",
+      [email, passwordHashed, role, first_name, last_name],
     );
 
     if (result.affectedRows > 0) {
-      return { id: result.insertId, email, role };
+      return { id: result.insertId, email, role, first_name, last_name };
     }
     return null;
   } catch (error) {
-    next(error)
+    // 4. On "re-throw" l'erreur pour qu'elle soit attrapée par le contrôleur
+    throw error; 
   }
 };
 
@@ -60,13 +61,15 @@ const loginUser = async (data) => {
   }
 
   const token = jwt.sign(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, role: user.role, last_name: user.last_name,  first_name: user.first_name },
     JWT_SECRET,
     { expiresIn: "4h" },
   );
   return {
     user: {
       id: user.id,
+      last_name: user.last_name, 
+      first_name: user.first_name,
       email: user.email,
       role: user.role,
     },
