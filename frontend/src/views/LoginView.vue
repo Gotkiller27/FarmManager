@@ -19,7 +19,24 @@ const form = ref({ email: '', password: '' });
 const handleLogin = async () => {
   try {
     await auth.login(form.value);
-    router.push('/admin-dashboard');
+    const user = await JSON.parse(localStorage.getItem("user"))
+
+    if(!user){
+      throw new Error("Aucun utilisateur connecté")
+    }
+
+    switch(user.role){
+      case 'admin'||"admin0":
+        router.push('/layout-principale/dashboard');
+        break;
+      case 'gerant':
+        router.push('/layout-principale/dashboard-gerant');
+        break;
+      case 'agent':
+        router.push('/layout-principale/dashboard-agent');
+        break;
+    }
+   
   } catch (err) {
     alert("Identifiants incorrects");
   }
@@ -68,4 +85,3 @@ const handleLogin = async () => {
 
 
 </style>
-
