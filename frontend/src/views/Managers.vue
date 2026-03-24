@@ -146,4 +146,6 @@ const deleteGerant = async (id) => {
       </div>
     </div>
   </div>
+
+  <FormAssignGerant></FormAssignGerant>
 </template>

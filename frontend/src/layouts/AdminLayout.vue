@@ -29,36 +29,36 @@ const FarmIcon = () => h("svg", { viewBox: "0 0 64 64", fill: "currentColor", cl
 // 1. CONFIGURATION DES ITEMS PAR RÔLE (Utilise tes composants d'icônes)
 const sidebarItems = {
   admin: [
-    { name: "Tableau de bord", icon: LayoutDashboard, path: "/" },
+    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale/dashboard" },
     { 
       name: "Départements", 
       icon: Folder, 
       children: [
-        { name: "Volaille", icon: Bird, path: "/departments/volaille" },
-        { name: "Bétail", icon: CowIcon, path: "/departments/betail" },
-        { name: "Pisciculture", icon: FishIcon, path: "/departments/pisciculture" },
+        { name: "Volaille", icon: Bird, path: "/layout-principale/departments/volaille" },
+        { name: "Bétail", icon: CowIcon, path: "/layout-principale/departments/betail" },
+        { name: "Pisciculture", icon: FishIcon, path: "/layout-principale/departments/pisciculture" },
       ]
     },
-    { name: "Gérants", icon:Contact, path: "/managers" },
-    { name: "Agents", icon: Users, path: "/agents" },
-    { name: "Utilisateurs", icon: User, path: "/users" },
+    { name: "Gérants", icon:Contact, path: "/layout-principale/managers" },
+    { name: "Agents", icon: Users, path: "/layout-principale/agents" },
+    { name: "Utilisateurs", icon: User, path: "/layout-principale/users" },
   ],
   gerant: [
-    { name: "Tableau de bord", icon: LayoutDashboard, path: "/dashboard" },
+    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale" },
     { 
       name: "Départements", 
       icon: Folder, 
       children: [
-        { name: "Volaille", icon: Bird, path: "/departments/volaille" },
-        { name: "Bétail", icon: CowIcon, path: "/departments/betail" },
-        { name: "Pisciculture", icon: FishIcon, path: "/departments/pisciculture" },
+        { name: "Volaille", icon: Bird, path: "/layout-principale/departments/volaille" },
+        { name: "Bétail", icon: CowIcon, path: "/layout-principale/departments/betail" },
+        { name: "Pisciculture", icon: FishIcon, path: "/layout-principale/departments/pisciculture" },
       ]
     },
-    { name: "Agents", icon: Users, path: "/agents" },
+    { name: "Agents", icon: Users, path: "/layout-principale/agents" },
   ],
   agent: [
-    { name: "Tableau de bord", icon: LayoutDashboard, path: "/dashboard" },
-    { name: "Mes campagnes", icon: ClipboardList, path: "/my-campaigns" },
+    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale" },
+    { name: "Mes campagnes", icon: ClipboardList, path: "/layout-principale/my-campaigns" },
   ]
 };
 

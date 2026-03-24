@@ -1,19 +1,21 @@
 <template>
   <div class="floating-button-container" ref="floatingContainer">
-    <button 
-      class="floating-button" 
-      @click="goToMainApp"
-      @mouseenter="onHover"
-      @mouseleave="onLeave"
-      ref="floatingButton"
-    >
-      <div class="button-content">
-        <Rocket />
-        <span class="button-text">Get Started</span>
-      </div>
-      <div class="button-glow"></div>
-      <div class="button-pulse"></div>
-    </button>
+    <router-link to="/login">
+      <button
+        class="floating-button"
+        @click="goToMainApp"
+        @mouseenter="onHover"
+        @mouseleave="onLeave"
+        ref="floatingButton"
+      >
+        <div class="button-content">
+          <Rocket />
+          <span class="button-text">Get Started</span>
+        </div>
+        <div class="button-glow"></div>
+        <div class="button-pulse"></div>
+      </button>
+    </router-link>
     
     <!-- Tooltip -->
     <div class="tooltip" :class="{ 'tooltip-visible': showTooltip }" ref="tooltip">
