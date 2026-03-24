@@ -2,13 +2,15 @@
 import { ref, onMounted, markRaw } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/services/api.js';
-import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird } from 'lucide-vue-next';
+import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird, HeartPulse , ShoppingCart} from 'lucide-vue-next';
 
 // Import des sous-composants
 import OverviewTab from '@/components/campaign/OverviewTab.vue';
 import FeedingTab from '@/components/campaign/FeedingTab.vue';
 import FinanceTab from '@/components/campaign/FinanceTab.vue';
-import SujetsTab from '@/components/campaign/SujetsTab.vue'; // <-- Nouvel import
+import SujetsTab from '@/components/campaign/SujetsTab.vue';
+import HealthTab from '@/components/campaign/HealthTab.vue'; // <-- Nouvel import
+import SalesTab from '@/components/campaign/SalesTab.vue'; // <-- Nouvel import
 
 const route = useRoute();
 const campaignId = route.params.id;
@@ -18,9 +20,11 @@ const campaign = ref(null);
 const activeTabId = ref('overview');
 const tabs = [
   { id: 'overview', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(OverviewTab) },
-  { id: 'sujets', name: 'Sujets (QR)', icon: Bird, component: markRaw(SujetsTab) }, // <-- Nouvel onglet
+  { id: 'sujets', name: 'Sujets (QR)', icon: Bird, component: markRaw(SujetsTab) },
+  { id: 'health', name: 'Santé', icon: HeartPulse, component: markRaw(HealthTab) }, // <-- Ajout de l'onglet Santé
   { id: 'feeding', name: 'Alimentation', icon: Utensils, component: markRaw(FeedingTab) },
   { id: 'finance', name: 'Finances', icon: DollarSign, component: markRaw(FinanceTab) },
+  { id: 'sales', name: 'Ventes', icon: ShoppingCart, component: markRaw(SalesTab) }, // <-- Ajout de l'onglet Ventes
 ];
 
 const currentComponent = ref(tabs[0].component);
