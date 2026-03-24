@@ -14,7 +14,6 @@
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.13.6",
     "chart.js": "^4.5.1",
-    "gasp": "^0.0.2",
     "gsap": "^3.14.2",
     "jwt-decode": "^4.0.0",
     "lucide-vue-next": "^0.577.0",
