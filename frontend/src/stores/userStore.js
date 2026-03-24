@@ -16,8 +16,8 @@ export const useUserStore = defineStore('userStore', {
     async fetchUsers() {
       this.loading = true;
       try {
-        const response = await api.get('/all');
-        this.users = response.data;
+        const response = await api.get('/users/getAll');
+        this.users = response.data.users;
       } catch (err) {
         this.error = "Erreur lors du chargement des utilisateurs";
         console.error(err);
@@ -27,17 +27,17 @@ export const useUserStore = defineStore('userStore', {
     },
 
     // 2. Ajouter un utilisateur
-    async addUser(userData) {
-      try {
-        const response = await api.post('/users', userData);
-        // On ajoute le nouvel utilisateur retourné par le back à notre liste locale
-        this.users.push(response.data);
-        return true;
-      } catch (err) {
-        this.error = "Impossible d'ajouter l'utilisateur";
-        return false;
-      }
-    },
+   async addUser(userData) {
+    try {
+      const response = await api.post('/auth/register', userData);
+      // Correction ici : on accède à .user car ton back renvoie { message, user }
+      this.users.push(response.data.user); 
+      return true;
+    } catch (err) {
+      this.error = "Impossible d'ajouter l'utilisateur";
+      return false;
+    }
+  },
 
     // 3. Mettre à jour un utilisateur
     async updateUser(id, userData) {
@@ -46,7 +46,7 @@ export const useUserStore = defineStore('userStore', {
         // On cherche l'index dans notre tableau local pour le mettre à jour sans recharger la page
         const index = this.users.findIndex(u => u.id === id);
         if (index !== -1) {
-          this.users[index] = response.data;
+          this.users[index] = response.data.user;
         }
         return true;
       } catch (err) {

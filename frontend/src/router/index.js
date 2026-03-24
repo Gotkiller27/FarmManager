@@ -8,23 +8,25 @@ import Agents from "@/views/Agents.vue";
 import Users from "@/views/Users.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import SpaLayout from '../layouts/SpaLayout.vue'
+import Spa from '../views/Spa.vue'
 
 const routes = [
   {
-    path: "/admin-dashboard",
+    path: "/layout-principale", // On utilise la racine pour le layout principal
     component: AdminLayout,
     children: [
-      { path: "/", name: "dashboard", component: Dashboard },
-      { path: "/managers", name: "managers", component: Managers },
-      { path: "/agents", name: "agents", component: Agents },
-      { path: "/users", name: "users", component: Users },
-    ],
-  },
-  {
-    path: "/agent",
-    component: AgentLayout,
-    children: [
-      { path: "", name: "agent-dashboard", component: Dashboard },
+      // Ici, les paths doivent correspondre EXACTEMENT à ceux du sidebarItems
+      { path: "dashboard", name: "dashboard", component: Dashboard }, 
+      { path: "managers", name: "managers", component: Managers },
+      { path: "agents", name: "agents", component: Agents },
+      { path: "users", name: "users", component: Users },
+      
+      // Ajoute des routes vides ou vers Dashboard pour les départements en attendant
+      { path: "departments/volaille", name: "volaille", component: Dashboard },
+      { path: "departments/betail", name: "betail", component: Dashboard },
+      { path: "departments/pisciculture", name: "pisciculture", component: Dashboard },
+      { path: "my-campaigns", name: "campaigns", component: Dashboard },
     ],
   },
   {
@@ -36,8 +38,32 @@ const routes = [
     path: "/register",
     name: "register",
     component: RegisterView
+  },
+   {
+    path: '/',
+    component: SpaLayout,
+    children: [
+      {
+        path: '',
+        name: 'SpaHome',
+        component: () => import('../views/spa/Home.vue')
+      },
+      {
+        path: 'about',
+        name: 'SpaAbout',
+        component: () => import('../views/spa/About.vue')
+      },
+      {
+        path: 'contact',
+        name: 'SpaContact',
+        component: () => import('../views/spa/Contact.vue')
+      }
+    ]
   }
 ];
+
+
+
 
 export default createRouter({
   history: createWebHistory(),
