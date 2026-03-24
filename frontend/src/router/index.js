@@ -8,10 +8,12 @@ import Agents from "@/views/Agents.vue";
 import Users from "@/views/Users.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import SpaLayout from '../layouts/SpaLayout.vue'
+import Spa from '../views/Spa.vue'
 
 const routes = [
   {
-    path: "/", // On utilise la racine pour le layout principal
+    path: "/layout-principale", // On utilise la racine pour le layout principal
     component: AdminLayout,
     children: [
       // Ici, les paths doivent correspondre EXACTEMENT à ceux du sidebarItems
@@ -36,8 +38,32 @@ const routes = [
     path: "/register",
     name: "register",
     component: RegisterView
+  },
+   {
+    path: '/',
+    component: SpaLayout,
+    children: [
+      {
+        path: '',
+        name: 'SpaHome',
+        component: () => import('../views/spa/Home.vue')
+      },
+      {
+        path: 'about',
+        name: 'SpaAbout',
+        component: () => import('../views/spa/About.vue')
+      },
+      {
+        path: 'contact',
+        name: 'SpaContact',
+        component: () => import('../views/spa/Contact.vue')
+      }
+    ]
   }
 ];
+
+
+
 
 export default createRouter({
   history: createWebHistory(),
