@@ -1,6 +1,5 @@
 <script setup>
 import { Bell, Menu, User } from "lucide-vue-next";
-
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -13,6 +12,11 @@ const props = defineProps({
   toggleSidebar: {
     type: Function,
     required: true
+  },
+  // RÉCUPÉRATION DE L'UTILISATEUR VIA LA PROPS ENVOYÉE PAR LE PARENT
+  currentUser: {
+    type: Object,
+    default: null
   }
 });
 
@@ -48,50 +52,46 @@ const goToProfile = () => {
 
       <div class="h-8 w-[1px] bg-gray-100 hidden sm:block"></div>
 
-      <!-- 🔥 PROFILE RESPONSIVE -->
-<div 
-  @click="goToProfile"
-  class="cursor-pointer group"
->
+      <div 
+        v-if="currentUser"
+        @click="goToProfile"
+        class="cursor-pointer group"
+      >
 
-  <!-- 📱 MOBILE -->
-  <div class="flex flex-col items-center sm:hidden">
-    <div class="w-9 h-9 bg-[#f0fdf4] text-[#16a34a] flex items-center justify-center rounded-full group-hover:bg-[#dcfce7] transition border border-green-50">
-      <User class="w-5 h-5 stroke-[2.5px]" />
-    </div>
+        <div class="flex flex-col items-center sm:hidden">
+          <div class="w-9 h-9 bg-[#f0fdf4] text-[#16a34a] flex items-center justify-center rounded-full group-hover:bg-[#dcfce7] transition border border-green-50">
+            <span class="text-xs font-bold uppercase">{{ currentUser?.first_name?.[0] || '?' }}</span>
+          </div>
 
-    <span class="text-[11px] text-gray-500 mt-1 group-hover:text-[#16a34a]">
-      Jean
-    </span>
-  </div>
+          <span class="text-[11px] text-gray-500 mt-1 group-hover:text-[#16a34a]">
+            {{ currentUser?.first_name }}
+          </span>
+        </div>
 
-  <!-- 💻 TABLET & DESKTOP -->
-  <div class="hidden sm:flex items-center gap-3">
-    
-    <!-- ICON -->
-    <div class="w-10 h-10 bg-[#f0fdf4] text-[#16a34a] flex items-center justify-center rounded-full group-hover:bg-[#dcfce7] transition border border-green-50">
-      <User class="w-5 h-5 stroke-[2.5px]" />
-    </div>
+        <div class="hidden sm:flex items-center gap-3">
+          
+          <div class="w-10 h-10 bg-[#f0fdf4] text-[#16a34a] flex items-center justify-center rounded-full group-hover:bg-[#dcfce7] transition border border-green-50 font-bold uppercase">
+           {{ currentUser?.first_name?.[0] }}{{ currentUser?.last_name?.[0]}}
+          </div>
 
-    <!-- TEXTE -->
-    <div class="text-left leading-tight">
-      <p class="text-sm font-semibold text-gray-900 group-hover:text-[#16a34a] transition">
-        Jean Dupont
-      </p>
-      <p class="text-[12px] text-gray-500">
-        Administrateur
-      </p>
-    </div>
+          <div class="text-left leading-tight">
+            <p class="text-sm font-semibold text-gray-900 group-hover:text-[#16a34a] transition">
+              {{ currentUser?.first_name }} {{ currentUser?.last_name }}
+            </p>
+            <p class="text-[12px] text-gray-500 capitalize">
+              {{ currentUser?.role }}
+            </p>
+          </div>
 
-  </div>
-</div>
+        </div>
+      </div>
 
     </div>
   </header>
 </template>
 
 <style scoped>
-h1, span {
+h1, span, p {
   font-family: 'Inter', sans-serif;
 }
 </style>

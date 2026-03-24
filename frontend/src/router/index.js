@@ -11,20 +11,20 @@ import RegisterView from "@/views/RegisterView.vue";
 
 const routes = [
   {
-    path: "/admin-dashboard",
+    path: "/", // On utilise la racine pour le layout principal
     component: AdminLayout,
     children: [
-      { path: "/", name: "dashboard", component: Dashboard },
-      { path: "/managers", name: "managers", component: Managers },
-      { path: "/agents", name: "agents", component: Agents },
-      { path: "/users", name: "users", component: Users },
-    ],
-  },
-  {
-    path: "/agent",
-    component: AgentLayout,
-    children: [
-      { path: "", name: "agent-dashboard", component: Dashboard },
+      // Ici, les paths doivent correspondre EXACTEMENT à ceux du sidebarItems
+      { path: "dashboard", name: "dashboard", component: Dashboard }, 
+      { path: "managers", name: "managers", component: Managers },
+      { path: "agents", name: "agents", component: Agents },
+      { path: "users", name: "users", component: Users },
+      
+      // Ajoute des routes vides ou vers Dashboard pour les départements en attendant
+      { path: "departments/volaille", name: "volaille", component: Dashboard },
+      { path: "departments/betail", name: "betail", component: Dashboard },
+      { path: "departments/pisciculture", name: "pisciculture", component: Dashboard },
+      { path: "my-campaigns", name: "campaigns", component: Dashboard },
     ],
   },
   {
