@@ -36,6 +36,11 @@ const isAdmin = computed(() => {
   return normalized === 'admin';
 });
 
+// Vérifier si l'utilisateur a accès au département (admin ou gérant assigné)
+const hasAccess = computed(() => {
+  return isAdmin.value || (isGerant.value && currentGerant.value && currentGerant.value.user_id === authStore.user?.id);
+});
+
 // ÉTATS
 const loading = ref(true);
 const showModal = ref(false); 
@@ -209,14 +214,16 @@ onMounted(async () => {
           Assigner Gérant
         </button>
 
-        <button @click="showModal = true" class="flex-1 sm:flex-none flex items-center gap-2 bg-[#16a34a] text-white px-4 py-2 rounded-xl hover:bg-[#15803d] transition-all shadow-sm font-semibold text-sm">
+        <button v-if="hasAccess" @click="showModal = true" class="flex-1 sm:flex-none flex items-center gap-2 bg-[#16a34a] text-white px-4 py-2 rounded-xl hover:bg-[#15803d] transition-all shadow-sm font-semibold text-sm">
           <Plus class="w-4 h-4" />
           Nouvelle Campagne
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-12">
+    <!-- CONTENU PRINCIPAL - Uniquement pour admin ou gérant assigné -->
+    <div v-if="hasAccess">
+      <div v-if="loading" class="flex justify-center py-12">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#16a34a]"></div>
     </div>
 
@@ -333,6 +340,20 @@ onMounted(async () => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+    </div>
+
+    <!-- MESSAGE POUR GÉRANT NON ASSIGNÉ -->
+    <div v-else class="flex flex-col items-center justify-center py-16 px-4">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center max-w-md">
+        <div class="bg-yellow-100 p-3 rounded-full w-fit mx-auto mb-4">
+          <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-yellow-800 mb-2">Accès Restreint</h3>
+        <p class="text-yellow-700">Ce département ne vous est pas assigné. Contactez un administrateur pour obtenir l'accès.</p>
       </div>
     </div>
   </div>
