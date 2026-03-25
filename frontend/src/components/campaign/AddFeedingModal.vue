@@ -2,6 +2,9 @@
 import { reactive } from 'vue';
 import api from '@/services/api.js';
 import { X } from 'lucide-vue-next';
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore();
 
 const props = defineProps(['campaignId', 'isOpen']);
 const emit = defineEmits(['close', 'refresh']);
@@ -15,7 +18,7 @@ const form = reactive({
 
 const handleSubmit = async () => {
   if (!form.quantite_kg || !form.prix_total) {
-    alert("Veuillez remplir tous les champs");
+    toastStore.warning("Veuillez remplir tous les champs");
     return;
   }
 
@@ -26,6 +29,7 @@ const handleSubmit = async () => {
     // On envoie le formulaire
     await api.post('/campaigns/feeding', form);
     
+    toastStore.success("Distribution d'aliment enregistrée avec succès.");
     // Reset du formulaire pour la prochaine fois
     form.quantite_kg = null;
     form.prix_total = null;
@@ -37,9 +41,9 @@ const handleSubmit = async () => {
     const sqlError = err.response?.data?.details || "";
     
     if (sqlError.includes("foreign key constraint fails")) {
-      alert("Erreur : Le type d'aliment sélectionné n'existe pas dans la base de données. Vérifiez votre table 'types_aliments'.");
+      toastStore.error("Erreur : Le type d'aliment sélectionné n'existe pas dans la base de données. Vérifiez votre table 'types_aliments'.");
     } else {
-      alert("Erreur serveur lors de l'enregistrement.");
+      toastStore.error("Erreur serveur lors de l'enregistrement.");
     }
   }
 };

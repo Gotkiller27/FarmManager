@@ -2,6 +2,9 @@
 import { reactive, ref } from 'vue';
 import api from '@/services/api.js';
 import { X, Loader2, Bird, Hash, Calendar, MapPin } from 'lucide-vue-next';
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore();
 
 const props = defineProps(['campaignId', 'isOpen']);
 const emit = defineEmits(['close', 'refresh']);
@@ -24,11 +27,12 @@ const handleSubmit = async () => {
     // On appelle la route de génération en masse (seedSujets)
     await api.post('/campaigns/sujets/batch', form);
     
+    toastStore.success("Lot de sujets généré avec succès.");
     emit('refresh');
     emit('close');
   } catch (err) {
     console.error("Erreur génération lot", err);
-    alert("Impossible de générer le lot de sujets.");
+    toastStore.error("Impossible de générer le lot de sujets.");
   } finally {
     loading.value = false;
   }

@@ -10,6 +10,7 @@ import SpaLayout from '../layouts/SpaLayout.vue'
 import DashboardGerant from '@/views/DashboardGerant.vue'
 import DashboardAgent from '@/views/DashboardAgent.vue'
 import { useAuthStore } from '@/stores/auth.js'
+import { useToastStore } from '@/stores/toast'
 import Volaille from '@/views/departement/volaille.vue'
 import CampaignDetail from '@/views/CampaignDetail.vue'
 const routes = [
@@ -80,6 +81,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const toastStore = useToastStore()
   const isAuthenticated = !!authStore.token
 
   // 1. Vérification de l'authentification
@@ -97,7 +99,7 @@ router.beforeEach(async (to, from, next) => {
   // 3. (Optionnel) Garde par Rôle
   // Si tu veux restreindre /users aux admins seulement
   if (to.path.includes('users') && authStore.user?.role !== 'admin') {
-    alert("Accès refusé : Réservé aux administrateurs")
+    toastStore.error("Accès refusé : Réservé aux administrateurs")
     return next({ name: 'dashboard' })
   }
 

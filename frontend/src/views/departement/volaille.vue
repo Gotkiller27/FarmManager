@@ -2,6 +2,9 @@
 import { ref, onMounted, reactive } from 'vue';
 import api from '@/services/api.js';
 import { Plus, Users, Calendar, TrendingUp, X } from 'lucide-vue-next';
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore();
 
 // ÉTATS
 const campaigns = ref([]);
@@ -47,6 +50,7 @@ const submitForm = async () => {
   isSubmitting.value = true;
   try {
     await api.post('/campaigns', form);
+    toastStore.success("Campagne créée avec succès.");
     showModal.value = false; // Ferme la modale
     await fetchCampaigns(); // Rafraîchit la liste
     // Reset du formulaire
@@ -56,7 +60,7 @@ const submitForm = async () => {
     form.date_fin_prevue = '';
   } catch (err) {
     console.error("Erreur lors de la création:", err);
-    alert("Erreur lors de la création de la campagne.");
+    toastStore.error("Erreur lors de la création de la campagne.");
   } finally {
     isSubmitting.value = false;
   }

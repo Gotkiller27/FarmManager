@@ -2,8 +2,10 @@
 import { onMounted, ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore"; 
 import { storeToRefs } from "pinia";
+import { useToastStore } from '@/stores/toast'
 
 const userStore = useUserStore();
+const toastStore = useToastStore();
 const { users, loading } = storeToRefs(userStore);
 
 // États pour la Modal et le Formulaire
@@ -44,14 +46,23 @@ const editUser = (user) => {
 };
 
 const handleAddOrUpdate = async () => {
-  if (!newUser.value.email || !newUser.value.first_name) return alert("Champs requis !");
+  if (!newUser.value.email || !newUser.value.first_name) {
+    toastStore.warning("Champs requis !");
+    return;
+  }
 
   if (isEditing.value) {
     const success = await userStore.updateUser(editingId.value, newUser.value);
-    if (success) closeModal();
+    if (success) {
+      toastStore.success("Utilisateur mis à jour avec succès.");
+      closeModal();
+    }
   } else {
     const success = await userStore.addUser(newUser.value);
-    if (success) closeModal();
+    if (success) {
+      toastStore.success("Utilisateur ajouté avec succès.");
+      closeModal();
+    }
   }
 };
 

@@ -6,6 +6,9 @@ import {
   ShoppingCart, TrendingUp, DollarSign, 
   Scan, Plus, Clock, X, Loader2, Camera 
 } from 'lucide-vue-next';
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore();
 
 const props = defineProps(['campaignId']);
 const sales = ref([]);
@@ -90,6 +93,7 @@ const submitVente = async () => {
     }
 
     await api.post(`/campaigns/${props.campaignId}/ventes`, finalData);
+    toastStore.success("Vente enregistrée avec succès.");
     isModalOpen.value = false;
     stopScanner(); // Sécurité : on éteint la caméra si ouverte
     
@@ -103,7 +107,7 @@ const submitVente = async () => {
     
     await fetchSalesData();
   } catch (err) {
-    alert("Erreur lors de l'enregistrement");
+    toastStore.error("Erreur lors de l'enregistrement");
   } finally {
     isSubmitting.value = false;
   }

@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import api from '@/services/api'
 import { useRouter } from 'vue-router'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
+const toastStore = useToastStore()
 const form = ref({
   last_name: '',
   first_name: '',
@@ -15,10 +17,10 @@ const form = ref({
 const handleSignup = async () => {
   try {
     await api.post('/auth/register', form.value)
-    alert('Compte créé avec succès ! Connectez-vous maintenant.')
+    toastStore.success('Compte créé avec succès ! Connectez-vous maintenant.')
     router.push('/login')
   } catch (err) {
-    alert('Erreur lors de la création du compte.')
+    toastStore.error('Erreur lors de la création du compte.')
   }
 }
 </script>
