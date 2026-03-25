@@ -9,11 +9,35 @@ import {
 } from "lucide-vue-next";
 import {  ref } from "vue";
 import Navbar from "@/components/Navbar.vue";
+import { useAuthStore } from "@/stores/auth.js";
+import { useRouter } from "vue-router";
+import { useToastStore } from '@/stores/toast'
+
+const authStore = useAuthStore();
+const toastStore = useToastStore();
+const router = useRouter();
 
 // ÉTATS
 const activeItem = ref("Tableau de bord");
 const sidebarOpen = ref(false); // Pour le menu mobile
 const openMenus = ref({ Départements: true }); // Les menus déroulants ouverts par défaut
+const showLogoutModal = ref(false);
+
+// LOGIQUE DE DÉCONNEXION
+const handleLogout = () => {
+  showLogoutModal.value = true;
+};
+
+const confirmLogout = () => {
+  authStore.logout();
+  showLogoutModal.value = false;
+  toastStore.success("Vous avez été déconnecté avec succès.");
+  router.push("/login");
+};
+
+const cancelLogout = () => {
+  showLogoutModal.value = false;
+};
 
 
 
@@ -108,7 +132,7 @@ const toggleSubMenu = (name) => {
 
       <div class="px-4 mt-auto">
         <div class="border-t border-gray-100 pt-4">
-          <div class="flex items-center gap-4 px-4 py-3 text-[#ef4444] cursor-pointer hover:bg-red-50 rounded-xl transition-all font-medium group">
+          <div @click="handleLogout" class="flex items-center gap-4 px-4 py-3 text-[#ef4444] cursor-pointer hover:bg-red-50 rounded-xl transition-all font-medium group">
             <LogOut class="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             <span class="text-[15px]">Déconnexion</span>
           </div>
@@ -129,6 +153,33 @@ const toggleSubMenu = (name) => {
       </main>
     </div>
 
+    <!-- Modal de confirmation de déconnexion -->
+    <div v-if="showLogoutModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+      <div class="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl border border-gray-100">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogOut class="w-8 h-8 text-red-600" />
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la déconnexion</h3>
+          <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir vous déconnecter ?</p>
+          
+          <div class="flex gap-3">
+            <button 
+              @click="cancelLogout" 
+              class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+            >
+              Annuler
+            </button>
+            <button 
+              @click="confirmLogout" 
+              class="flex-1 py-3 px-4 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors"
+            >
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

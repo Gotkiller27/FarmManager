@@ -12,6 +12,9 @@ import DashboardAgent from '@/views/DashboardAgent.vue'
 import { useAuthStore } from '@/stores/auth.js'
 import ProfileView from '@/views/ProfileView.vue'
 
+import { useToastStore } from '@/stores/toast'
+import Volaille from '@/views/departement/volaille.vue'
+import CampaignDetail from '@/views/CampaignDetail.vue'
 const routes = [
   {
     path: '/layout-principale', // On utilise la racine pour le layout principal
@@ -26,11 +29,18 @@ const routes = [
       { path: 'users', name: 'users', component: Users },
       { path: '/profile', name: 'profile', component: ProfileView },
 
+      
       // Ajoute des routes vides ou vers Dashboard pour les départements en attendant
-      { path: 'departments/volaille', name: 'volaille', component: Dashboard },
+      { path: 'departments/volaille', name: 'volaille', component: Volaille },
       { path: 'departments/betail', name: 'betail', component: Dashboard },
       { path: 'departments/pisciculture', name: 'pisciculture', component: Dashboard },
       { path: 'my-campaigns', name: 'campaigns', component: Dashboard },
+      { 
+        path: 'campaign/:id', 
+        name: 'campaign-detail', 
+        component: CampaignDetail,
+        props: true // Permet de recevoir l'id directement comme une prop
+      },
     ],
     meta: {requireAuth: true}
   },
@@ -75,6 +85,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const toastStore = useToastStore()
   const isAuthenticated = !!authStore.token
 
   // 1. Vérification de l'authentification
@@ -92,7 +103,7 @@ router.beforeEach(async (to, from, next) => {
   // 3. (Optionnel) Garde par Rôle
   // Si tu veux restreindre /users aux admins seulement
   if (to.path.includes('users') && authStore.user?.role !== 'admin') {
-    alert("Accès refusé : Réservé aux administrateurs")
+    toastStore.error("Accès refusé : Réservé aux administrateurs")
     return next({ name: 'dashboard' })
   }
 

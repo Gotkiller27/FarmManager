@@ -15,9 +15,10 @@ const filteredAgents = computed(() => {
   
   return users.value.filter(user => {
     const isAgent = user.role === 'agent';
-    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+    // Utilisation de snake_case pour correspondre à l'API AgriManage
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
     const matchesSearch = fullName.includes(searchQuery.value.toLowerCase()) || 
-                          user.email.toLowerCase().includes(searchQuery.value.toLowerCase());
+                          (user.email && user.email.toLowerCase().includes(searchQuery.value.toLowerCase()));
     
     return isAgent && matchesSearch;
   });
@@ -49,7 +50,7 @@ const deleteAgent = async (id) => {
 </script>
 
 <template>
-  <div class="min-h-screen p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
+  <div class="min-h-screen p-3 sm:p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
     
     <div class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div>
@@ -81,31 +82,32 @@ const deleteAgent = async (id) => {
         </span>
       </div>
 
-      <div class="overflow-hidden rounded-3xl"> 
-        <table class="w-full border-separate border-spacing-y-3 table-fixed"> 
+      <div class="overflow-x-auto rounded-3xl"> 
+        <table class="w-full border-separate border-spacing-y-3"> 
           <thead>
             <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              <th class="px-6 text-left w-1/2">Agent</th> 
-              <th class="px-6 text-center w-1/4">Statut</th>
-              <th class="px-6 text-right w-1/4">Actions</th>
+              <th class="px-6 py-2 text-left">Agent</th> 
+              <th class="px-6 py-2 text-center">Statut</th>
+              <th class="px-6 py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="3" class="py-12 text-center text-emerald-600 font-bold animate-pulse">Chargement de l'équipe...</td>
+              <td colspan="3" class="py-12 text-center text-emerald-600 font-bold animate-pulse text-sm">Chargement de l'équipe...</td>
             </tr>
+            
             <tr v-else-if="filteredAgents.length === 0">
-              <td colspan="3" class="py-12 text-center text-slate-400 italic">Aucun agent ne correspond à votre recherche.</td>
+              <td colspan="3" class="py-12 text-center text-slate-400 italic text-sm">Aucun agent ne correspond à votre recherche.</td>
             </tr>
 
             <tr v-for="user in paginatedAgents" :key="user.id" class="group transition-all duration-300">
               <td class="px-6 py-4 rounded-l-2xl bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg">
-                    {{ user.first_name[0] }}{{ user.last_name[0] }}
+                  <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg shrink-0">
+                    {{ (user.first_name?.[0] || 'A') }}{{ (user.last_name?.[0] || '') }}
                   </div>
-                  <div class="truncate">
-                    <span class="block font-black text-slate-700 truncate">{{ user.first_name }} {{ user.last_name }}</span>
+                  <div class="min-w-0">
+                    <span class="block font-black text-slate-700 truncate capitalize">{{ user.first_name }} {{ user.last_name }}</span>
                     <span class="block text-[11px] text-slate-400 font-medium truncate">{{ user.email }}</span>
                   </div>
                 </div>
@@ -120,7 +122,9 @@ const deleteAgent = async (id) => {
               <td class="px-6 py-4 rounded-r-2xl text-right bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
                 <div class="flex justify-end gap-2">
                   <button @click="deleteAgent(user.id)" class="p-2 rounded-xl bg-white border border-slate-100 text-rose-300 hover:text-rose-500 hover:bg-rose-50 transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               </td>

@@ -1,0 +1,62 @@
+import express from 'express';
+import { 
+  getCampaignsByDept, 
+  createCampaign, 
+  getCampaignById, 
+  getCampaignExpenses, 
+  getFeedings, 
+  addFeeding, 
+  getFeedingStats, 
+  getSujetsByCampaign, 
+  seedSujets, 
+  getFeedingChartData,
+  getHealthStats,
+  getHealthHistory,
+  addHealthRecord,
+  recordVente,
+  getVentes,
+  getFinancialSummary 
+} from '../controllers/campaign.controller.js';
+
+const router = express.Router();
+
+// ==========================================
+// 1. ROUTES POST (ACTIONS)
+// ==========================================
+// On les met en haut pour qu'elles soient prioritaires
+router.post('/', createCampaign);
+router.post('/feeding', addFeeding);
+router.post('/health-records', addHealthRecord); // <-- Celle-ci doit être bien visible
+router.post('/sujets/batch', seedSujets);
+
+// ==========================================
+// 2. ROUTES GET SPÉCIFIQUES (DÉPARTEMENT)
+// ==========================================
+router.get('/department/:deptId', getCampaignsByDept);
+
+// ==========================================
+// 3. ROUTES GET PAR CAMPAGNE (:id)
+// ==========================================
+// Ici :id est une variable, Express va tester ces routes dans l'ordre
+router.get('/:id/health-stats', getHealthStats);
+router.get('/:id/health-history', getHealthHistory);
+router.get('/:id/feeding-stats', getFeedingStats);   
+router.get('/:id/feeding-chart', getFeedingChartData); 
+router.get('/:id/feedings', getFeedings);             
+router.get('/:id/sujets', getSujetsByCampaign);
+router.get('/:id/expenses', getCampaignExpenses);
+
+
+
+// Enregistrer une nouvelle vente (Individuelle ou Lot)
+router.post('/:id/ventes', recordVente);
+
+// Récupérer la liste des ventes d'une campagne
+router.get('/:id/ventes', getVentes);
+
+// Récupérer le bilan financier (Recettes vs Dépenses)
+router.get('/:id/financial-summary', getFinancialSummary);
+// TOUJOURS METTRE LA ROUTE LA PLUS GÉNÉRIQUE EN DERNIER
+router.get('/:id', getCampaignById);
+
+export default router;

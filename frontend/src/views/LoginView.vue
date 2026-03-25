@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore();
 
 onMounted(() => {
   if (auth.token) {
@@ -41,7 +44,7 @@ const handleLogin = async () => {
     }
    
   } catch (err) {
-    alert("Identifiants incorrects");
+    toastStore.error("Identifiants incorrects");
   }
 };
 </script>
