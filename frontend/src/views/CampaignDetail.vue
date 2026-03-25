@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted, markRaw } from 'vue';
 import { useRoute } from 'vue-router';
-import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird, HeartPulse , ShoppingCart} from 'lucide-vue-next';
+// Ajout de l'icône Users pour l'équipe
+import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird, HeartPulse, ShoppingCart, Users } from 'lucide-vue-next';
 import { useCampaignStore } from '@/stores/campaignStore'
 
 // Import des sous-composants
@@ -9,8 +10,10 @@ import OverviewTab from '@/components/campaign/OverviewTab.vue';
 import FeedingTab from '@/components/campaign/FeedingTab.vue';
 import FinanceTab from '@/components/campaign/FinanceTab.vue';
 import SujetsTab from '@/components/campaign/SujetsTab.vue';
-import HealthTab from '@/components/campaign/HealthTab.vue'; // <-- Nouvel import
-import SalesTab from '@/components/campaign/SalesTab.vue'; // <-- Nouvel import
+import HealthTab from '@/components/campaign/HealthTab.vue';
+import SalesTab from '@/components/campaign/SalesTab.vue';
+// Nouvel import pour l'équipe
+import TeamTab from '@/components/campaign/TeamTab.vue'; 
 
 const route = useRoute();
 const campaignId = route.params.id;
@@ -21,10 +24,12 @@ const activeTabId = ref('overview');
 const tabs = [
   { id: 'overview', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(OverviewTab) },
   { id: 'sujets', name: 'Sujets (QR)', icon: Bird, component: markRaw(SujetsTab) },
-  { id: 'health', name: 'Santé', icon: HeartPulse, component: markRaw(HealthTab) }, // <-- Ajout de l'onglet Santé
+  { id: 'health', name: 'Santé', icon: HeartPulse, component: markRaw(HealthTab) },
   { id: 'feeding', name: 'Alimentation', icon: Utensils, component: markRaw(FeedingTab) },
   { id: 'finance', name: 'Finances', icon: DollarSign, component: markRaw(FinanceTab) },
-  { id: 'sales', name: 'Ventes', icon: ShoppingCart, component: markRaw(SalesTab) }, // <-- Ajout de l'onglet Ventes
+  { id: 'sales', name: 'Ventes', icon: ShoppingCart, component: markRaw(SalesTab) },
+  // AJOUT DE L'ONGLET ÉQUIPE
+  { id: 'team', name: 'Équipe', icon: Users, component: markRaw(TeamTab) }, 
 ];
 
 const currentComponent = ref(tabs[0].component);
@@ -101,7 +106,6 @@ onMounted(async () => {
   transform: translateY(-10px);
 }
 
-/* Scrollbar personnalisée pour le contenu */
 main::-webkit-scrollbar {
   width: 6px;
 }

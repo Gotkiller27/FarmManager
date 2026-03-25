@@ -497,3 +497,78 @@ export const getFinancialChartData = async (req, res) => {
         res.status(500).json({ message: "Erreur lors du calcul du graphique", error: error.message });
     }
 };
+
+// 1. Assigner ou Modifier le gérant d'un département (Logique Upsert)
+export const assignGerantToDept = async (req, res) => {
+  const { gerant_id, departement_id } = req.body;
+
+  try {
+    // Vérifier si une assignation existe déjà pour ce département
+    const checkQuery = `SELECT * FROM gerant_departements WHERE departement_id = ?`;
+    const [existing] = await db.execute(checkQuery, [departement_id]);
+
+    if (existing.length > 0) {
+      // Si une ligne existe, on met à jour le gérant (UPDATE)
+      const updateQuery = `UPDATE gerant_departements SET gerant_id = ? WHERE departement_id = ?`;
+      await db.execute(updateQuery, [gerant_id, departement_id]);
+      
+      res.status(200).json({ 
+        message: "Gérant mis à jour pour ce département.",
+        action: "updated" 
+      });
+    } else {
+      // Sinon, on crée la nouvelle assignation (INSERT)
+      const insertQuery = `INSERT INTO gerant_departements (gerant_id, departement_id) VALUES (?, ?)`;
+      await db.execute(insertQuery, [gerant_id, departement_id]);
+      
+      res.status(201).json({ 
+        message: "Gérant assigné avec succès.",
+        action: "inserted" 
+      });
+    }
+  } catch (error) {
+    console.error("Erreur assignation:", error);
+    res.status(500).json({ message: "Erreur lors de l'assignation", error: error.message });
+  }
+};
+
+// 2. Récupérer le gérant actuel d'un département (pour l'affichage au chargement)
+export const getCurrentGerantByDept = async (req, res) => {
+  const { deptId } = req.params;
+
+  try {
+    const query = `
+      SELECT g.*, u.nom 
+      FROM gerant_departements gd
+      JOIN gerants g ON gd.gerant_id = g.user_id
+      JOIN users u ON g.user_id = u.id
+      WHERE gd.departement_id = ?
+    `;
+    const [rows] = await db.execute(query, [deptId]);
+
+    if (rows.length === 0) {
+      return res.status(200).json(null); // Aucun gérant assigné
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération du gérant", error: error.message });
+  }
+};
+
+// 3. Lister tous les gérants (pour ton menu déroulant/select)
+export const getAllGerants = async (req, res) => {
+  try {
+    const query = `
+      SELECT g.*, u.nom 
+      FROM gerants g 
+      JOIN users u ON g.user_id = u.id
+    `;
+    const [rows] = await db.execute(query);
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
