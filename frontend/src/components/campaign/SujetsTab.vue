@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import api from '@/services/api.js';
-import QrcodeVue from 'qrcode.vue'; // Import après ton npm install
+import QrcodeVue from 'qrcode.vue'; 
 import { Bird, QrCode, Plus, Search, Printer, X } from 'lucide-vue-next';
 import AddSujetBatchModal from './AddSujetBatchModal.vue';
+import SubjectTrackingModal from './SubjectTrackingModal.vue';
 
 const props = defineProps(['campaignId']);
 const sujets = ref([]);
 const isModalOpen = ref(false);
 const searchQuery = ref('');
+const isTrackingModalOpen = ref(false);
+const selectedSubjectId = ref(null);
 
 // Chargement des données
 const fetchSujets = async () => {
@@ -27,39 +30,45 @@ const filteredSujets = computed(() => {
   );
 });
 
-// Déclenche l'impression (utilise le style @media print en bas)
+// Déclenche l'impression
 const printLabels = () => {
   window.print();
+};
+
+// Ouvrir la fiche de suivi d'un sujet
+const openTrackingModal = (subjectId) => {
+  selectedSubjectId.value = subjectId;
+  isTrackingModalOpen.value = true;
 };
 
 onMounted(fetchSujets);
 </script>
 
 <template>
-  <div class="p-6 space-y-6 bg-[#fdfdfd]">
+  <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 bg-[#fdfdfd]">
     
-    <div class="flex justify-between items-center print:hidden">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 print:hidden">
       <div>
-        <h2 class="text-2xl font-bold text-[#065f46]">Inventaire Individuel</h2>
-        <p class="text-green-600/60 text-sm font-medium">Suivi par QR Code unique</p>
+        <h2 class="text-lg sm:text-2xl font-bold text-[#065f46]">Inventaire Individuel</h2>
+        <p class="text-green-600/60 text-xs sm:text-sm font-medium">Suivi par QR Code unique</p>
       </div>
-      <div class="flex gap-3">
-        <button @click="printLabels" class="bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-          <Printer class="w-5 h-5" /> Imprimer étiquettes
+      <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
+        <button @click="printLabels" class="flex-1 sm:flex-none bg-white border border-gray-200 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-xs sm:text-sm">
+          <Printer class="w-4 h-4" /> Imprimer étiquettes
         </button>
-        <button @click="isModalOpen = true" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all">
-          <Plus class="w-5 h-5" /> Nouveau Lot
+        <button @click="isModalOpen = true" class="flex-1 sm:flex-none bg-[#16a34a] hover:bg-[#15803d] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all text-xs sm:text-sm">
+          <Plus class="w-4 h-4" /> Nouveau Lot
         </button>
       </div>
     </div>
 
     <div class="relative print:hidden">
-      <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <Search class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
       <input v-model="searchQuery" type="text" placeholder="Rechercher un token ou scanner..." 
-        class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm ring-1 ring-gray-100 focus:ring-2 focus:ring-green-500 transition-all">
+        class="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 rounded-lg sm:rounded-2xl border-none bg-white shadow-sm ring-1 ring-gray-100 focus:ring-2 focus:ring-green-500 transition-all text-xs sm:text-base">
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 print:hidden">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 print:hidden">
       <div v-for="sujet in filteredSujets" :key="sujet.id" 
         class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
         
@@ -80,7 +89,7 @@ onMounted(fetchSujets);
         </div>
 
         <div class="absolute inset-0 bg-green-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-           <button class="text-white font-bold text-sm flex items-center gap-2">
+           <button @click="openTrackingModal(sujet.id)" class="text-white font-bold text-sm flex items-center gap-2">
              <QrCode class="w-5 h-5" /> Voir Fiche
            </button>
         </div>
@@ -111,13 +120,19 @@ onMounted(fetchSujets);
       @close="isModalOpen = false"
       @refresh="fetchSujets"
     />
+
+    <SubjectTrackingModal 
+      :isOpen="isTrackingModalOpen"
+      :subjectId="selectedSubjectId"
+      :campaignId="campaignId"
+      @close="isTrackingModalOpen = false"
+    />
   </div>
 </template>
 
 <style>
 @media print {
-  /* Cache tout sauf la zone d'impression */
-  body * { visibility: hidden; background: white !important; }
+  body * { visibility: hidden; }
   .print\:block, .print\:block * { visibility: visible; }
   .print\:block {
     position: absolute;

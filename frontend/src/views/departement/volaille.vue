@@ -9,7 +9,7 @@ const toastStore = useToastStore();
 // ÉTATS
 const campaigns = ref([]);
 const loading = ref(true);
-const showModal = ref(false); // Contrôle l'affichage de la modale
+const showModal = ref(false); 
 const isSubmitting = ref(false);
 
 // FORMULAIRE RÉACTIF
@@ -18,7 +18,7 @@ const form = reactive({
   date_debut: '',
   date_fin_prevue: '',
   budget: null,
-  gerant_id: 7, // On utilise ton gérant par défaut
+  gerant_id: 7, 
   departement_id: 1 // Volaille
 });
 
@@ -51,8 +51,9 @@ const submitForm = async () => {
   try {
     await api.post('/campaigns', form);
     toastStore.success("Campagne créée avec succès.");
-    showModal.value = false; // Ferme la modale
-    await fetchCampaigns(); // Rafraîchit la liste
+    showModal.value = false; 
+    await fetchCampaigns(); 
+    
     // Reset du formulaire
     form.nom = '';
     form.budget = null;
@@ -70,14 +71,14 @@ onMounted(fetchCampaigns);
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex justify-between items-center">
+  <div class="space-y-4 sm:space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
       <div>
-        <h1 class="text-2xl font-bold text-[#065f46]">Département Volaille</h1>
-        <p class="text-gray-500 text-sm">Gérez vos cycles de production avicole</p>
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#065f46]">Département Volaille</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">Gérez vos cycles de production avicole</p>
       </div>
-      <button @click="showModal = true" class="flex items-center gap-2 bg-[#16a34a] text-white px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-all shadow-sm hover:shadow-md font-semibold">
-        <Plus class="w-5 h-5" />
+      <button @click="showModal = true" class="w-full sm:w-auto flex items-center gap-2 bg-[#16a34a] text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:bg-[#15803d] transition-all shadow-sm hover:shadow-md font-semibold text-sm">
+        <Plus class="w-4 h-4 sm:w-5 sm:h-5" />
         Nouvelle Campagne
       </button>
     </div>
@@ -86,7 +87,7 @@ onMounted(fetchCampaigns);
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#16a34a]"></div>
     </div>
 
-    <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-if="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
       <div v-for="camp in campaigns" :key="camp.id" 
            class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all cursor-pointer hover:-translate-y-1"
            @click="$router.push(`/layout-principale/campaign/${camp.id}`)">
@@ -103,7 +104,7 @@ onMounted(fetchCampaigns);
         <div class="space-y-3 text-sm text-[#64748b]">
           <div class="flex items-center gap-2">
             <Calendar class="w-4 h-4 text-gray-400" />
-            Lancée le : {{ new Date(camp.date_debut).toLocaleDateString() }}
+            Lancée le : {{ camp.date_debut ? new Date(camp.date_debut).toLocaleDateString() : 'Non définie' }}
           </div>
           <div class="flex items-center gap-2">
             <Users class="w-4 h-4 text-gray-400" />
@@ -114,11 +115,14 @@ onMounted(fetchCampaigns);
         <div class="mt-6 pt-4 border-t border-gray-50">
           <div class="flex justify-between text-[11px] mb-1.5">
             <span class="font-medium text-gray-500 uppercase">Utilisation Budget</span>
-            <span class="font-bold text-[#16a34a]">{{ camp.budget > 0 ? Math.round((camp.total_depenses/camp.budget)*100) : 0 }}%</span>
+            <span class="font-bold text-[#16a34a]">
+              {{ camp.budget > 0 ? Math.min(100, Math.round((camp.total_depenses/camp.budget)*100)) : 0 }}%
+            </span>
           </div>
           <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
             <div class="bg-[#16a34a] h-full transition-all duration-700 ease-out" 
-                 :style="{ width: (camp.budget > 0 ? (camp.total_depenses/camp.budget)*100 : 0) + '%' }"></div>
+                 :style="{ width: (camp.budget > 0 ? Math.min(100, (camp.total_depenses/camp.budget)*100) : 0) + '%' }">
+            </div>
           </div>
         </div>
       </div>
@@ -128,7 +132,7 @@ onMounted(fetchCampaigns);
       <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all">
         <div class="bg-[#f0fdf4] px-6 py-4 flex justify-between items-center border-b border-green-50">
           <h2 class="text-lg font-bold text-[#065f46]">Nouvelle Campagne</h2>
-          <button @click="showModal = false" class="text-gray-400 hover:text-red-500">
+          <button @click="showModal = false" class="text-gray-400 hover:text-red-500 transition-colors">
             <X class="w-6 h-6" />
           </button>
         </div>

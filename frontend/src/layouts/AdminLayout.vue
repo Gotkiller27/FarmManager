@@ -195,7 +195,7 @@ const toggleSubMenu = (name) => {
       <header class="bg-white border-b border-gray-100 h-[72px] flex items-center shadow-sm">
         <Navbar :title="activeItem" :toggleSidebar="() => sidebarOpen = !sidebarOpen" :currentUser="user" />
       </header>
-      <main class="flex-1 p-6 overflow-auto">
+      <main class="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-auto">
         <router-view />
       </main>
     </div>

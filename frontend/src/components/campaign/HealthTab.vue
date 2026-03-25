@@ -64,14 +64,14 @@ onMounted(refreshAll);
 </script>
 
 <template>
-  <div class="p-6 space-y-8 bg-[#fdfdfd]">
+  <div class="p-3 sm:p-4 md:p-6 space-y-6 sm:space-y-8 bg-[#fdfdfd]">
     
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
       <div>
-        <h2 class="text-2xl font-bold text-[#065f46]">Suivi Sanitaire</h2>
-        <p class="text-green-600/60 text-sm font-medium">État de santé et interventions médicales</p>
+        <h2 class="text-lg sm:text-2xl font-bold text-[#065f46]">Suivi Sanitaire</h2>
+        <p class="text-green-600/60 text-xs sm:text-sm font-medium">État de santé et interventions médicales</p>
       </div>
-      <button @click="isModalOpen = true" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95">
+      <button @click="isModalOpen = true" class="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-lg sm:rounded-xl font-bold flex items-center justify-center sm:justify-start gap-2 shadow-lg transition-all text-sm sm:text-base">
         <Plus class="w-5 h-5" /> Enregistrer un Soin / Décès
       </button>
     </div>
@@ -93,7 +93,7 @@ onMounted(refreshAll);
               <p class="text-3xl font-black text-slate-800">{{ stats.malade }}</p>
             </div>
           </div>
-          <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-4 text-red-600 bg-red-50/10">
+          <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-4 text-red-600">
             <div class="bg-red-100 p-4 rounded-2xl text-red-600"><Skull /></div>
             <div>
               <p class="text-red-400 text-[10px] font-bold uppercase">Taux de Mortalité</p>
@@ -108,8 +108,8 @@ onMounted(refreshAll);
           <div class="flex items-center gap-4">
             <div class="bg-white/10 p-3 rounded-xl"><HeartPulse class="w-6 h-6" /></div>
             <div>
-              <p class="font-bold">Programme Prophylactique</p>
-              <p class="text-xs text-white/60">Assurez-vous que tous les vaccins sont à jour.</p>
+              <p class="font-bold text-sm sm:text-base">Programme Prophylactique</p>
+              <p class="text-[10px] sm:text-xs text-white/60 text-pretty">Assurez-vous que tous les vaccins sont à jour.</p>
             </div>
           </div>
           <ChevronRight class="text-white/40" />
@@ -142,15 +142,15 @@ onMounted(refreshAll);
             </div>
 
             <div>
-              <p class="font-bold text-slate-800 capitalize flex items-center gap-2">
+              <p class="font-bold text-slate-800 capitalize flex items-center gap-2 text-sm sm:text-base">
                 {{ event.nom_produit || event.type_acte }}
                 <span class="text-[10px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">
                   {{ new Date(event.date_acte).toLocaleDateString() }}
                 </span>
               </p>
-              <p class="text-xs text-gray-500">
-                Sujet : <span class="font-mono font-bold text-[#16a34a]">{{ event.qr_code_token.split('-').pop() }}</span>
-                <span v-if="event.notes" class="ml-2 italic text-gray-400">• {{ event.notes }}</span>
+              <p class="text-[10px] sm:text-xs text-gray-500">
+                Sujet : <span class="font-mono font-bold text-[#16a34a]">{{ event.qr_code_token?.split('-').pop() || 'LOT' }}</span>
+                <span v-if="event.notes" class="ml-2 italic text-gray-400 hidden sm:inline">• {{ event.notes }}</span>
               </p>
             </div>
           </div>
@@ -179,7 +179,6 @@ onMounted(refreshAll);
 </template>
 
 <style scoped>
-/* Petit effet de fade pour les cartes au survol */
 .group:hover {
   cursor: default;
 }

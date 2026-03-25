@@ -118,15 +118,15 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
 </script>
 
 <template>
-  <div class="p-4 md:p-6 space-y-6 md:space-y-8 bg-[#fdfdfd]">
+  <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6 bg-[#fdfdfd]">
     
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
       <div>
-        <h2 class="text-xl md:text-2xl font-bold text-[#065f46]">Gestion des Ventes</h2>
-        <p class="text-green-600/60 text-xs md:text-sm font-medium">Suivi des sorties (Poussins/Sujets)</p>
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#065f46]">Gestion des Ventes</h2>
+        <p class="text-green-600/60 text-xs sm:text-sm md:text-base font-medium">Suivi des sorties (Poussins/Sujets)</p>
       </div>
-      <button @click="isModalOpen = true" class="w-full md:w-auto bg-[#065f46] text-white px-6 py-4 md:py-3 rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg active:scale-95 transition-all">
-        <Plus class="w-5 h-5" /> Enregistrer une Sortie
+      <button @click="isModalOpen = true" class="w-full md:w-auto bg-[#065f46] text-white px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 md:py-3 rounded-lg md:rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg active:scale-95 transition-all text-xs sm:text-sm md:text-base">
+        <Plus class="w-4 h-4 sm:w-5 sm:h-5" /> Enregistrer une Sortie
       </button>
     </div>
 
@@ -156,13 +156,13 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
       </div>
     </div>
 
-    <div class="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden text-slate-800">
-      <div class="p-6 border-b border-gray-50 flex items-center gap-2">
-        <Clock class="w-5 h-5 text-[#065f46]" />
-        <h3 class="font-bold text-slate-800">Historique des Ventes</h3>
+    <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden text-slate-800">
+      <div class="p-4 sm:p-5 md:p-6 border-b border-gray-50 flex items-center gap-2">
+        <Clock class="w-4 h-4 sm:w-5 sm:h-5 text-[#065f46]" />
+        <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-800">Historique des Ventes</h3>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left min-w-[600px] md:min-w-full">
+        <table class="w-full text-left min-w-[420px] sm:min-w-[560px] md:min-w-full">
           <thead>
             <tr class="bg-gray-50/50 text-[10px] font-black uppercase text-gray-400">
               <th class="p-6">Client / Date</th>
@@ -195,10 +195,10 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
       </div>
     </div>
 
-    <div v-if="isModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] flex items-end md:items-center justify-center p-0 md:p-4 text-slate-800">
-      <div class="bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] w-full max-w-lg p-6 md:p-8 shadow-2xl relative animate-in slide-in-from-bottom duration-300">
-        <button @click="isModalOpen = false; stopScanner()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><X /></button>
-        <h3 class="text-xl md:text-2xl font-black text-[#065f46] mb-6">Enregistrer une Vente</h3>
+    <div v-if="isModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] flex items-end md:items-center justify-center p-3 md:p-6 text-slate-800">
+      <div class="bg-white rounded-t-[2rem] md:rounded-[2.5rem] w-full max-w-md sm:max-w-lg p-5 sm:p-6 md:p-8 shadow-2xl relative animate-in slide-in-from-bottom duration-300">
+        <button @click="isModalOpen = false; stopScanner()" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-gray-400 hover:text-red-500"><X /></button>
+        <h3 class="text-lg sm:text-xl md:text-2xl font-black text-[#065f46] mb-4 sm:mb-5">Enregistrer une Vente</h3>
         
         <form @submit.prevent="submitVente" class="space-y-5">
           <div>

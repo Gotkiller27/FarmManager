@@ -66,20 +66,20 @@ onMounted(loadAllData);
 </script>
 
 <template>
-  <div class="p-4 space-y-8 bg-[#fdfdfd]">
+  <div class="p-3 sm:p-4 md:p-6 space-y-6 sm:space-y-8 bg-[#fdfdfd]">
     
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
        <div>
-         <h2 class="text-2xl font-bold text-[#065f46]">Gestion de l'Alimentation</h2>
-         <p class="text-green-600/60 text-sm font-medium">Suivi des rations et coûts alimentaires</p>
+         <h2 class="text-lg sm:text-2xl font-bold text-[#065f46]">Gestion de l'Alimentation</h2>
+         <p class="text-green-600/60 text-xs sm:text-sm font-medium">Suivi des rations et coûts alimentaires</p>
        </div>
-       <button @click="isModalOpen = true" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-100 transition-all">
+       <button @click="isModalOpen = true" class="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-lg sm:rounded-xl font-bold flex items-center justify-center sm:justify-start gap-2 shadow-lg shadow-green-100 transition-all text-sm sm:text-base">
          <Plus class="w-5 h-5" /> Enregistrer Distribution
        </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
         <div>
           <p class="text-gray-400 text-[10px] font-bold uppercase">Quantité Totale</p>
           <p class="text-2xl font-black text-slate-800">{{ stats.total_kg || 0 }} kg</p>
@@ -87,7 +87,7 @@ onMounted(loadAllData);
         <Utensils class="text-green-500 w-5 h-5" />
       </div>
 
-      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between">
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
         <div>
           <p class="text-gray-400 text-[10px] font-bold uppercase">Coût Total</p>
           <p class="text-2xl font-black text-slate-800">{{ Number(stats.total_cout).toLocaleString() }} F</p>
@@ -95,7 +95,7 @@ onMounted(loadAllData);
         <TrendingUp class="text-green-500 w-5 h-5" />
       </div>
 
-      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between text-blue-600 bg-blue-50/30">
+      <div class="bg-blue-50/30 p-6 rounded-2xl border border-blue-100 shadow-sm flex justify-between items-center text-blue-600">
         <div>
           <p class="text-blue-400 text-[10px] font-bold uppercase">Coût Moyen / Kg</p>
           <p class="text-2xl font-black text-blue-800">{{ Math.round(stats.cout_moyen_kg || 0) }} F</p>
@@ -104,7 +104,7 @@ onMounted(loadAllData);
       </div>
     </div>
 
-    <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+    <div class="bg-white p-6 sm:p-8 rounded-[2rem] border border-gray-100 shadow-sm">
       <h3 class="font-bold text-slate-800 mb-6">Consommation Journalière</h3>
       <FeedingChart v-if="dataChart.labels.length > 0" :chartData="dataChart" />
       <div v-else class="h-64 flex items-center justify-center text-gray-400 italic">
@@ -113,24 +113,29 @@ onMounted(loadAllData);
     </div>
 
     <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-gray-50"><h3 class="font-bold">Historique des Distributions</h3></div>
-      <div class="p-6 space-y-4">
-        <div v-for="item in feedings" :key="item.id" class="flex items-center justify-between bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+      <div class="p-6 border-b border-gray-50 flex items-center gap-2">
+        <Utensils class="w-5 h-5 text-[#065f46]" />
+        <h3 class="font-bold">Historique des Distributions</h3>
+      </div>
+      
+      <div class="p-4 sm:p-6 space-y-4">
+        <div v-for="item in feedings" :key="item.id" class="flex items-center justify-between bg-gray-50/50 p-4 rounded-2xl border border-gray-100 hover:bg-green-50/30 transition-colors">
           <div class="flex items-center gap-4">
             <div class="bg-[#16a34a] p-3 rounded-2xl text-white"><Utensils class="w-5 h-5" /></div>
             <div>
-              <p class="font-bold text-slate-800">{{ item.nom_aliment || 'Aliment Standard' }}</p>
-              <p class="text-[11px] text-gray-400">
-                {{ new Date(item.date_distribution).toLocaleDateString() }} • {{ item.heure_distribution }}
+              <p class="font-bold text-slate-800 text-sm sm:text-base">{{ item.nom_aliment || 'Aliment Standard' }}</p>
+              <p class="text-[10px] sm:text-[11px] text-gray-400">
+                {{ item.date_distribution ? new Date(item.date_distribution).toLocaleDateString() : '...' }} • {{ item.heure_distribution }}
               </p>
             </div>
           </div>
           <div class="text-right">
-            <p class="font-bold text-slate-800">{{ item.quantite_kg }} kg</p>
-            <p class="text-sm font-bold text-[#16a34a]">{{ Number(item.prix_total).toLocaleString() }} F</p>
+            <p class="font-bold text-slate-800 text-sm sm:text-base">{{ item.quantite_kg }} kg</p>
+            <p class="text-xs sm:text-sm font-bold text-[#16a34a]">{{ Number(item.prix_total).toLocaleString() }} F</p>
           </div>
         </div>
-        <div v-if="feedings.length === 0" class="text-center py-10 text-gray-400">
+
+        <div v-if="feedings.length === 0" class="text-center py-10 text-gray-400 italic text-sm">
           Aucun enregistrement trouvé.
         </div>
       </div>

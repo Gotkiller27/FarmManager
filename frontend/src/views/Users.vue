@@ -85,15 +85,15 @@ const deleteUser = async (id) => {
 </script>
 
 <template>
-  <div class="min-h-screen p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
+  <div class="min-h-screen p-3 sm:p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
     
-    <div class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="max-w-7xl mx-auto mb-6 sm:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
       <div>
-        <h1 class="text-4xl font-black text-emerald-900 tracking-tight">Membres AgriManage</h1>
-        <p class="text-slate-500 mt-2 text-lg">Gérez les accès et les rôles de votre équipe.</p>
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-900 tracking-tight">Membres AgriManage</h1>
+        <p class="text-slate-500 mt-1 sm:mt-2 text-xs sm:text-sm md:text-base">Gérez les accès et les rôles de votre équipe.</p>
       </div>
       
-      <button @click="openAddModal" class="btn-premium flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-white bg-gradient-to-br from-emerald-500 to-teal-700 shadow-xl hover:-translate-y-1 transition-all">
+      <button @click="openAddModal" class="btn-premium w-full md:w-auto flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-white bg-gradient-to-br from-emerald-500 to-teal-700 shadow-xl hover:-translate-y-1 transition-all text-sm sm:text-base">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
         </svg>
@@ -102,8 +102,8 @@ const deleteUser = async (id) => {
     </div>
 
     <div class="max-w-7xl mx-auto bg-white rounded-[2.5rem] p-8 shadow-[20px_20px_60px_#d1d9e6,-20px_-20px_60px_#ffffff]">
-      <div class="overflow-hidden rounded-3xl"> 
-        <table class="w-full border-separate border-spacing-y-3"> 
+      <div class="overflow-x-auto rounded-2xl sm:rounded-3xl">
+        <table class="w-full text-left text-xs sm:text-sm border-separate border-spacing-y-2 sm:border-spacing-y-3 min-w-[600px] md:min-w-full">
           <thead>
             <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
               <th class="px-6 text-left">Utilisateur</th> 
@@ -113,9 +113,9 @@ const deleteUser = async (id) => {
           </thead>
           <tbody>
             <tr v-for="user in paginatedUsers" :key="user.id" class="group transition-all duration-300">
-              <td class="px-6 py-4 rounded-l-2xl bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg uppercase">
+              <td class="px-4 sm:px-6 py-3 sm:py-4 rounded-l-xl sm:rounded-l-2xl bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg text-xs sm:text-sm">
                     {{ (user.first_name || "?")[0] }}{{ (user.last_name || "")[0] }}
                   </div>
                   <div>
@@ -133,12 +133,12 @@ const deleteUser = async (id) => {
                   {{ user.role }}
                 </span>
               </td>
-              <td class="px-6 py-4 rounded-r-2xl text-right bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
-                <div class="flex justify-end gap-2">
-                  <button @click="editUser(user)" class="p-2 rounded-xl bg-white border border-slate-100 text-emerald-600 hover:bg-emerald-50 transition-all">
+              <td class="px-4 sm:px-6 py-3 sm:py-4 rounded-r-xl sm:rounded-r-2xl text-right bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
+                <div class="flex justify-end gap-1 sm:gap-2">
+                  <button @click="editUser(user)" class="p-1 sm:p-2 rounded-lg sm:rounded-xl bg-white border border-slate-100 text-emerald-600 hover:bg-emerald-50 transition-all text-sm sm:text-base">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                   </button>
-                  <button @click="deleteUser(user.id)" class="p-2 rounded-xl bg-white border border-slate-100 text-rose-300 hover:text-rose-500 transition-all">
+                  <button @click="deleteUser(user.id)" class="p-1 sm:p-2 rounded-lg sm:rounded-xl bg-white border border-slate-100 text-rose-300 hover:text-rose-500 transition-all text-sm sm:text-base">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                 </div>
@@ -153,40 +153,40 @@ const deleteUser = async (id) => {
       <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div @click="closeModal" class="absolute inset-0 bg-emerald-900/20 backdrop-blur-md"></div>
         
-        <div class="relative bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-modal-in">
-          <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl font-black text-slate-800 flex items-center gap-3">
-              <span class="w-2.5 h-8 bg-emerald-500 rounded-full"></span>
+        <div class="relative bg-white w-full max-w-md sm:max-w-lg md:max-w-md rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8 shadow-2xl animate-modal-in">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6 sm:mb-8">
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3">
+              <span class="w-1.5 sm:w-2.5 h-6 sm:h-8 bg-emerald-500 rounded-full"></span>
               {{ isEditing ? "Modifier Membre" : "Nouveau Membre" }}
             </h2>
             <button @click="closeModal" class="text-slate-400 hover:text-rose-500 transition-colors font-bold">FERMER</button>
           </div>
 
-          <div class="space-y-5">
-            <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-4 sm:space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Nom</label>
-                <input v-model="newUser.last_name" type="text" class="input-neo w-full rounded-2xl px-5 py-3 bg-slate-50" />
+                <label class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Nom</label>
+                <input v-model="newUser.last_name" type="text" class="input-neo w-full rounded-lg sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3 bg-slate-50 text-xs sm:text-base" />
               </div>
               <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Prénom</label>
-                <input v-model="newUser.first_name" type="text" class="input-neo w-full rounded-2xl px-5 py-3 bg-slate-50" />
+                <label class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Prénom</label>
+                <input v-model="newUser.first_name" type="text" class="input-neo w-full rounded-lg sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3 bg-slate-50 text-xs sm:text-base" />
               </div>
             </div>
 
             <div>
-              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Email Professionnel</label>
-              <input v-model="newUser.email" type="email" class="input-neo w-full rounded-2xl px-5 py-3 bg-slate-50" />
+              <label class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Email Professionnel</label>
+              <input v-model="newUser.email" type="email" class="input-neo w-full rounded-lg sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3 bg-slate-50 text-xs sm:text-base" />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Mot de Passe</label>
-                <input v-model="newUser.password" type="password" placeholder="••••••••" class="input-neo w-full rounded-2xl px-5 py-3 bg-slate-50" />
+                <label class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Mot de Passe</label>
+                <input v-model="newUser.password" type="password" placeholder="••••••••" class="input-neo w-full rounded-lg sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3 bg-slate-50 text-xs sm:text-base" />
               </div>
               <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Rôle</label>
-                <select v-model="newUser.role" class="input-neo w-full rounded-2xl px-5 py-3 bg-slate-50 appearance-none cursor-pointer">
+                <label class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Rôle</label>
+                <select v-model="newUser.role" class="input-neo w-full rounded-lg sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3 bg-slate-50 appearance-none cursor-pointer text-xs sm:text-base">
                   <option value="admin">Admin</option>
                   <option value="gerant">Gérant</option>
                   <option value="agent">Agent</option>

@@ -46,7 +46,7 @@ onMounted(async () => {
 
 <template>
   <div class="h-full flex flex-col" v-if="campaign">
-    <div class="flex items-center gap-4 mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
       <button @click="$router.back()" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
         <ChevronLeft class="w-5 h-5 text-gray-600" />
       </button>
@@ -56,14 +56,14 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="flex-1 flex bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-      <aside class="w-64 bg-gray-50/50 border-r border-gray-100 p-4">
-        <nav class="space-y-2">
+    <div class="flex-1 flex flex-col md:flex-row bg-white rounded-lg sm:rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden gap-0 md:gap-0">
+      <aside class="w-full md:w-64 bg-gray-50/50 border-b md:border-b-0 md:border-r border-gray-100 p-3 sm:p-4">
+        <nav class="space-y-1">
           <button 
             v-for="tab in tabs" :key="tab.id"
             @click="changeTab(tab)"
             :class="[
-              'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all',
+              'w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-2xl text-xs sm:text-sm font-bold transition-all',
               activeTabId === tab.id 
                 ? 'bg-[#16a34a] text-white shadow-lg shadow-green-100 scale-[1.02]' 
                 : 'text-gray-400 hover:bg-white hover:text-green-600'
@@ -75,7 +75,7 @@ onMounted(async () => {
         </nav>
       </aside>
 
-      <main class="flex-1 p-8 overflow-y-auto bg-white">
+      <main class="flex-1 p-3 sm:p-4 md:p-8 overflow-y-auto bg-white">
         <transition name="fade" mode="out-in">
           <component 
             :is="currentComponent" 

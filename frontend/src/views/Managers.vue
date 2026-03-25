@@ -4,7 +4,6 @@ import { useUserStore } from "@/stores/userStore";
 import { storeToRefs } from "pinia";
 import FormAssignGerant from '@/components/FormAssignGerant.vue';
 
-
 const userStore = useUserStore();
 const { users, loading } = storeToRefs(userStore);
 
@@ -57,12 +56,12 @@ const deleteGerant = async (id) => {
 </script>
 
 <template>
-  <div class="min-h-screen p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
+  <div class="min-h-screen p-3 sm:p-4 md:p-8 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-emerald-50 text-slate-800">
     
-    <div class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div class="max-w-7xl mx-auto mb-6 sm:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-6">
       <div>
-        <h1 class="text-4xl font-black text-emerald-900 tracking-tight">Les Gérants</h1>
-        <p class="text-slate-500 mt-2 text-lg">Responsables d'exploitation AgriManage.</p>
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-900 tracking-tight">Les Gérants</h1>
+        <p class="text-slate-500 mt-1 sm:mt-2 text-xs sm:text-sm font-medium">Responsables d'exploitation AgriManage.</p>
       </div>
 
       <div class="relative w-full md:w-96 group">
@@ -80,7 +79,7 @@ const deleteGerant = async (id) => {
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto bg-white rounded-[2.5rem] p-8 shadow-[20px_20px_60px_#d1d9e6,-20px_-20px_60px_#ffffff] overflow-hidden">
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8 shadow-[20px_20px_60px_#d1d9e6,-20px_-20px_60px_#ffffff] overflow-hidden">
       
       <div class="flex justify-between items-center mb-8">
         <h2 class="text-xl font-bold text-slate-800">Administration</h2>
@@ -89,8 +88,8 @@ const deleteGerant = async (id) => {
         </span>
       </div>
 
-      <div class="overflow-hidden rounded-3xl"> 
-        <table class="w-full border-separate border-spacing-y-3 table-fixed"> 
+      <div class="overflow-x-auto rounded-2xl sm:rounded-3xl">
+        <table class="w-full border-separate border-spacing-y-2 sm:border-spacing-y-3 table-fixed min-w-[600px] md:min-w-full">
           <thead>
             <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
               <th class="px-6 text-left w-1/2">Gérant</th> 
@@ -100,20 +99,20 @@ const deleteGerant = async (id) => {
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="3" class="py-12 text-center text-emerald-600 font-bold animate-pulse">Chargement des responsables...</td>
+              <td colspan="3" class="py-12 text-center text-emerald-600 font-bold animate-pulse text-sm">Chargement des responsables...</td>
             </tr>
             <tr v-else-if="filteredGerants.length === 0">
-              <td colspan="3" class="py-12 text-center text-slate-400 italic">Aucun gérant trouvé pour cette recherche.</td>
+              <td colspan="3" class="py-12 text-center text-slate-400 italic text-sm">Aucun gérant trouvé pour cette recherche.</td>
             </tr>
 
             <tr v-for="user in paginatedGerants" :key="user.id" class="group transition-all duration-300">
               <td class="px-6 py-4 rounded-l-2xl bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg uppercase">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-lg uppercase shrink-0">
                     {{ (user.firstName || user.first_name || "?")[0] }}{{ (user.lastName || user.last_name || "")[0] }}
                   </div>
                   <div class="truncate">
-                    <span class="block font-black text-slate-700 truncate">{{ user.firstName || user.first_name }} {{ user.lastName || user.last_name }}</span>
+                    <span class="block font-black text-slate-700 truncate capitalize">{{ user.firstName || user.first_name }} {{ user.lastName || user.last_name }}</span>
                     <span class="block text-[11px] text-slate-400 font-medium truncate">{{ user.email }}</span>
                   </div>
                 </div>
@@ -128,7 +127,9 @@ const deleteGerant = async (id) => {
               <td class="px-6 py-4 rounded-r-2xl text-right bg-slate-50 group-hover:bg-emerald-50/50 transition-colors">
                 <div class="flex justify-end gap-2">
                   <button @click="deleteGerant(user.id)" class="p-2 rounded-xl bg-white border border-slate-100 text-rose-300 hover:text-rose-500 hover:bg-rose-50 transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               </td>
@@ -147,5 +148,5 @@ const deleteGerant = async (id) => {
     </div>
   </div>
 
-  <FormAssignGerant></FormAssignGerant>
+  <FormAssignGerant />
 </template>
