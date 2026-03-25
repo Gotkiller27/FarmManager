@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { 
   UsersIcon, 
   MapIcon, 
@@ -9,9 +9,20 @@ import {
   UserCircleIcon,
   IdentificationIcon
 } from '@heroicons/vue/24/outline';
+import { useUserStore } from '@/stores/userStore';
+
+
+const userStore = useUserStore()
+
+const totalGerants = computed(()=>{
+  return userStore.countByRole("gerant")
+})
+
+
+
 
 const stats = ref([
-  { name: 'Total Gérants', value: '12', icon: UsersIcon, change: '+2 ce mois', status: 'positive' },
+  { name: 'Total Gérants', value: `${totalGerants.value}`, icon: UsersIcon, change: '+2 ce mois', status: 'positive' },
   { name: 'Départements', value: '4', icon: MapIcon, change: 'Stable', status: 'neutral' },
   { name: 'Campagnes', value: '28', icon: BeakerIcon, change: '+5 cette semaine', status: 'positive' },
   { name: 'Performance', value: '94%', icon: ChartBarIcon, change: '+1.5%', status: 'positive' },
@@ -48,6 +59,7 @@ onMounted(() => {
   setTimeout(() => {
     loading.value = false;
   }, 800);
+  userStore.fetchUsers()
 });
 </script>
 

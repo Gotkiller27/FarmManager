@@ -29,7 +29,10 @@ const handleLogin = async () => {
     }
 
     switch(user.role){
-      case 'admin'||"admin0":
+      case 'admin':
+        router.push('/layout-principale/dashboard');
+        break;
+      case"admin0":
         router.push('/layout-principale/dashboard');
         break;
       case 'gerant':
