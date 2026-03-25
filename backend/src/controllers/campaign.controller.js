@@ -150,14 +150,17 @@ export const addFeeding = async (req, res) => {
 // Fonction pour récupérer l'historique complet des distributions
 export const getFeedings = async (req, res) => {
   const { id } = req.params;
+  // Note: feedings est au niveau campagne, pas au niveau sujet
+  // Chaque sujet d'une campagne reçoit les mêmes alimentations
+  
   try {
-    const query = `
+    let query = `
       SELECT 
         f.*, 
         t.nom as nom_aliment 
       FROM feedings f
       LEFT JOIN types_aliments t ON f.type_aliment_id = t.id
-      WHERE f.campagne_id = ? 
+      WHERE f.campagne_id = ?
       ORDER BY f.date_distribution DESC, f.heure_distribution DESC
     `;
     
@@ -198,13 +201,37 @@ export const seedSujets = async (req, res) => {
   }
 };
 
-export const getSujetsByCampaign = async (req, res) => {
-  const { id } = req.params;
+export const getSujetById = async (req, res) => {
+  const { id, subjectId } = req.params; // id de la campagne, subjectId du sujet
+  
   try {
-    const [rows] = await db.execute(
-      'SELECT * FROM sujets WHERE campagne_id = ? ORDER BY id DESC',
-      [id]
-    );
+    const query = `
+      SELECT * FROM sujets 
+      WHERE id = ? AND campagne_id = ?
+    `;
+    const [rows] = await db.execute(query, [subjectId, id]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Sujet non trouvé" });
+    }
+    
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getSujetsByCampaign = async (req, res) => {
+  const { id } = req.params; // id de la campagne
+  
+  try {
+    const query = `
+      SELECT * FROM sujets 
+      WHERE campagne_id = ?
+      ORDER BY date_arrivee DESC, id DESC
+    `;
+    const [rows] = await db.execute(query, [id]);
+    
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -289,16 +316,25 @@ export const getHealthStats = async (req, res) => {
 
 export const getHealthHistory = async (req, res) => {
   const { id } = req.params; // id de la campagne
+  const { subjectId } = req.query; // optionnel : filtrer par sujet
+  
   try {
-    const query = `
+    let query = `
       SELECT h.*, s.qr_code_token 
       FROM sante_sujets h
       JOIN sujets s ON h.sujet_id = s.id
       WHERE s.campagne_id = ?
-      ORDER BY h.date_acte DESC, h.created_at DESC
-      LIMIT 50
     `;
-    const [rows] = await db.execute(query, [id]);
+    let params = [id];
+    
+    if (subjectId) {
+      query += ` AND h.sujet_id = ?`;
+      params.push(subjectId);
+    }
+    
+    query += ` ORDER BY h.date_acte DESC, h.created_at DESC LIMIT 50`;
+    
+    const [rows] = await db.execute(query, params);
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -307,15 +343,19 @@ export const getHealthHistory = async (req, res) => {
 
 // --- ROUTES POUR LES VENTES ---
 // 1. Enregistrer une vente
+// --- ROUTES POUR LES VENTES CORRIGÉES ---
 export const recordVente = async (req, res) => {
     const { id } = req.params; // campaignId
-    const { type_vente, qr_token, poids_kg, prix_unitaire, client_nom } = req.body;
-    const prix_total = poids_kg * prix_unitaire;
+    const { type_vente, qr_token, poids_kg, quantite, prix_unitaire, client_nom } = req.body;
+
+    // LOGIQUE FLEXIBLE : Si pas de poids (poussins), on utilise la quantité
+    const valeurMesure = poids_kg || quantite || 1; 
+    const prix_total = valeurMesure * prix_unitaire;
 
     try {
         let sujetId = null;
 
-        if (type_vente === 'individuel') {
+        if (type_vente === 'individuel' && qr_token) {
             const [sujet] = await db.query("SELECT id FROM sujets WHERE qr_code_token = ?", [qr_token]);
             if (sujet.length === 0) return res.status(404).json({ message: "Sujet non trouvé" });
             sujetId = sujet[0].id;
@@ -324,37 +364,65 @@ export const recordVente = async (req, res) => {
             await db.query("UPDATE sujets SET statut = 'vendu' WHERE id = ?", [sujetId]);
         }
 
+        // On enregistre soit le poids, soit la quantité selon ce qui est rempli
         const query = `
-            INSERT INTO ventes (campagne_id, sujet_id, poids_kg, prix_unitaire, prix_total, client_nom) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO ventes (campagne_id, sujet_id, poids_kg, quantite, prix_unitaire, prix_total, client_nom) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-        await db.execute(query, [id, sujetId, poids_kg, prix_unitaire, prix_total, client_nom]);
+        
+        // Note: Assure-toi d'avoir une colonne 'quantite' dans ta table SQL 'ventes'
+        await db.execute(query, [
+            id, 
+            sujetId, 
+            poids_kg || 0, 
+            quantite || 1, 
+            prix_unitaire, 
+            prix_total, 
+            client_nom
+        ]);
 
-        res.status(201).json({ message: "Vente enregistrée !" });
+        res.status(201).json({ message: "Vente enregistrée avec succès !" });
     } catch (error) {
+        console.error("Erreur recordVente:", error);
         res.status(500).json({ error: error.message });
     }
 };
-
 // 2. Récupérer l'historique des ventes
 export const getVentes = async (req, res) => {
     const { id } = req.params;
+    const { subjectId } = req.query; // optionnel : filtrer par sujet
+    
     try {
-        const query = `
+        let query = `
             SELECT v.*, s.qr_code_token 
             FROM ventes v 
             LEFT JOIN sujets s ON v.sujet_id = s.id 
-            WHERE v.campagne_id = ? 
-            ORDER BY v.date_vente DESC
+            WHERE v.campagne_id = ?
         `;
-        const [rows] = await db.execute(query, [id]);
-        res.json(rows);
+        let params = [id];
+        
+        if (subjectId) {
+            query += ` AND v.sujet_id = ?`;
+            params.push(subjectId);
+        }
+        
+        query += ` ORDER BY v.date_vente DESC`;
+        
+        const [rows] = await db.execute(query, params);
+        
+        // On s'assure que le front reçoit toujours une valeur lisible
+        const formattedRows = rows.map(sale => ({
+            ...sale,
+            affichage_quantite: sale.poids_kg > 0 ? `${sale.poids_kg} kg` : `${sale.quantite} sujets`
+        }));
+
+        res.json(formattedRows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
 // 3. Le Bilan Financier (Le plus important !)
+// --- 3. Le Bilan Financier CORRIGÉ ---
 export const getFinancialSummary = async (req, res) => {
     const { id } = req.params;
     try {
@@ -367,8 +435,12 @@ export const getFinancialSummary = async (req, res) => {
         // Total des autres dépenses (santé, achat poussins, etc.)
         const [depenses] = await db.query("SELECT IFNULL(SUM(montant), 0) as total FROM depenses_campagne WHERE campagne_id = ?", [id]);
 
-        const recettes = ventes[0].total;
-        const charges = aliments[0].total + depenses[0].total;
+        // FORCE LA CONVERSION EN NOMBRE POUR ÉVITER LE COLLAGE DE TEXTE
+        const recettes = Number(ventes[0].total || 0);
+        const totalAliments = Number(aliments[0].total || 0);
+        const totalDepensesDiverses = Number(depenses[0].total || 0);
+
+        const charges = totalAliments + totalDepensesDiverses;
         const benefice = recettes - charges;
 
         res.json({
@@ -378,6 +450,50 @@ export const getFinancialSummary = async (req, res) => {
             rentabilite: charges > 0 ? ((benefice / charges) * 100).toFixed(2) : 0
         });
     } catch (error) {
+        console.error("Erreur FinancialSummary:", error);
         res.status(500).json({ error: error.message });
+    }
+};
+
+export const getFinancialChartData = async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        // Cette requête SQL récupère tous les mouvements d'argent par jour
+        // en combinant les 3 tables : ventes, feedings et depenses_campagne
+        const query = `
+            SELECT 
+                DATE_FORMAT(date_flux, '%d %b') as date,
+                SUM(recettes) as recettes,
+                SUM(charges) as charges
+            FROM (
+                -- 1. On récupère les recettes des ventes
+                SELECT date_vente as date_flux, prix_total as recettes, 0 as charges 
+                FROM ventes 
+                WHERE campagne_id = ?
+
+                UNION ALL
+
+                -- 2. On récupère les charges des nourrissages
+                SELECT date_distribution, 0, prix_total 
+                FROM feedings 
+                WHERE campagne_id = ?
+
+                UNION ALL
+
+                -- 3. On récupère les dépenses diverses
+                SELECT date_depense, 0, montant 
+                FROM depenses_campagne 
+                WHERE campagne_id = ?
+            ) as total_mouvements
+            GROUP BY date_flux
+            ORDER BY date_flux ASC
+        `;
+
+        const [rows] = await db.execute(query, [id, id, id]);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Erreur SQL Chart:", error);
+        res.status(500).json({ message: "Erreur lors du calcul du graphique", error: error.message });
     }
 };

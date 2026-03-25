@@ -1,10 +1,11 @@
 <script setup>
 import { reactive } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
 import { X } from 'lucide-vue-next';
 import { useToastStore } from '@/stores/toast'
 
 const toastStore = useToastStore();
+const campaignStore = useCampaignStore();
 
 const props = defineProps(['campaignId', 'isOpen']);
 const emit = defineEmits(['close', 'refresh']);
@@ -26,13 +27,17 @@ const handleSubmit = async () => {
     // Mise à jour de l'ID au cas où la prop aurait changé
     form.campagne_id = props.campaignId;
     
-    // On envoie le formulaire
-    await api.post('/campaigns/feeding', form);
+    // On utilise le store
+    await campaignStore.addFeeding(form);
     
     toastStore.success("Distribution d'aliment enregistrée avec succès.");
     // Reset du formulaire pour la prochaine fois
     form.quantite_kg = null;
     form.prix_total = null;
+    
+    // Rechargement des données depuis le store
+    await campaignStore.fetchFeedingHistory(props.campaignId);
+    await campaignStore.fetchFeedingStats(props.campaignId);
     
     emit('refresh');
     emit('close');

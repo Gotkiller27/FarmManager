@@ -8,6 +8,7 @@ import {
   addFeeding, 
   getFeedingStats, 
   getSujetsByCampaign, 
+  getSujetById,
   seedSujets, 
   getFeedingChartData,
   getHealthStats,
@@ -15,7 +16,8 @@ import {
   addHealthRecord,
   recordVente,
   getVentes,
-  getFinancialSummary 
+  getFinancialSummary,
+  getFinancialChartData 
 } from '../controllers/campaign.controller.js';
 
 const router = express.Router();
@@ -44,6 +46,7 @@ router.get('/:id/feeding-stats', getFeedingStats);
 router.get('/:id/feeding-chart', getFeedingChartData); 
 router.get('/:id/feedings', getFeedings);             
 router.get('/:id/sujets', getSujetsByCampaign);
+router.get('/:id/sujets/:subjectId', getSujetById);
 router.get('/:id/expenses', getCampaignExpenses);
 
 
@@ -59,4 +62,6 @@ router.get('/:id/financial-summary', getFinancialSummary);
 // TOUJOURS METTRE LA ROUTE LA PLUS GÉNÉRIQUE EN DERNIER
 router.get('/:id', getCampaignById);
 
+// Route pour les données du graphique financier
+router.get('/:id/financial-chart', getFinancialChartData);
 export default router;

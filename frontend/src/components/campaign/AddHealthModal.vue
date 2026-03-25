@@ -1,10 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
 import { HeartPulse, X, Scan, Users } from 'lucide-vue-next';
 import { useToastStore } from '@/stores/toast'
 
 const toastStore = useToastStore();
+const campaignStore = useCampaignStore();
 
 const props = defineProps(['isOpen', 'campaignId']);
 const emit = defineEmits(['close', 'refresh']);
@@ -23,8 +24,13 @@ const form = reactive({
 const submit = async () => {
   try {
     const payload = { ...form, campaignId: props.campaignId, targetType: targetType.value };
-    await api.post('/campaigns/health-records', payload);
+    await campaignStore.addHealthRecord(payload);
     toastStore.success("Intervention santé enregistrée avec succès.");
+    
+    // Rechargement des données depuis le store
+    await campaignStore.fetchHealthHistory(props.campaignId);
+    await campaignStore.fetchHealthStats(props.campaignId);
+    
     emit('refresh');
     emit('close');
   } catch (err) { 

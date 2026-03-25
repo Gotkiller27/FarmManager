@@ -1,59 +1,29 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
+import { storeToRefs } from 'pinia';
 import FeedingChart from './FeedingChart.vue';
 import AddFeedingModal from './AddFeedingModal.vue';
 import { Utensils, TrendingUp, DollarSign, Plus } from 'lucide-vue-next';
 
 const props = defineProps(['campaignId']);
 const isModalOpen = ref(false);
+const campaignStore = useCampaignStore();
 
-// 1. État des données
-const feedings = ref([]);
-const stats = ref({
-  total_kg: 0,
-  total_cout: 0,
-  cout_moyen_kg: 0
-});
-
-const dataChart = ref({
-  labels: [],
-  datasets: [{
-    label: 'Consommation (kg)',
-    backgroundColor: '#16a34a',
-    borderRadius: 8,
-    data: [] 
-  }]
-});
+// 1. État des données depuis le store
+const { feedingStats, feedingChart, feedingHistory } = storeToRefs(campaignStore);
 
 // 2. Fonctions de chargement
 const loadStats = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/feeding-stats`);
-    stats.value = data;
-  } catch (err) { console.error("Erreur stats", err); }
+  await campaignStore.fetchFeedingStats(props.campaignId);
 };
 
 const fetchChartData = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/feeding-chart`);
-    dataChart.value = {
-      labels: data.map(item => item.label),
-      datasets: [{
-        label: 'Consommation (kg)',
-        backgroundColor: '#16a34a',
-        borderRadius: 8,
-        data: data.map(item => item.total_day_kg)
-      }]
-    };
-  } catch (err) { console.error("Erreur graphique", err); }
+  await campaignStore.fetchFeedingChart(props.campaignId);
 };
 
 const fetchHistory = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/feedings`);
-    feedings.value = data;
-  } catch (err) { console.error("Erreur historique", err); }
+  await campaignStore.fetchFeedingHistory(props.campaignId);
 };
 
 const loadAllData = () => {
@@ -82,7 +52,7 @@ onMounted(loadAllData);
       <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
         <div>
           <p class="text-gray-400 text-[10px] font-bold uppercase">Quantité Totale</p>
-          <p class="text-2xl font-black text-slate-800">{{ stats.total_kg || 0 }} kg</p>
+          <p class="text-2xl font-black text-slate-800">{{ feedingStats.total_kg || 0 }} kg</p>
         </div>
         <Utensils class="text-green-500 w-5 h-5" />
       </div>
@@ -90,7 +60,7 @@ onMounted(loadAllData);
       <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
         <div>
           <p class="text-gray-400 text-[10px] font-bold uppercase">Coût Total</p>
-          <p class="text-2xl font-black text-slate-800">{{ Number(stats.total_cout).toLocaleString() }} F</p>
+          <p class="text-2xl font-black text-slate-800">{{ Number(feedingStats.total_cout).toLocaleString() }} F</p>
         </div>
         <TrendingUp class="text-green-500 w-5 h-5" />
       </div>
@@ -98,7 +68,7 @@ onMounted(loadAllData);
       <div class="bg-blue-50/30 p-6 rounded-2xl border border-blue-100 shadow-sm flex justify-between items-center text-blue-600">
         <div>
           <p class="text-blue-400 text-[10px] font-bold uppercase">Coût Moyen / Kg</p>
-          <p class="text-2xl font-black text-blue-800">{{ Math.round(stats.cout_moyen_kg || 0) }} F</p>
+          <p class="text-2xl font-black text-blue-800">{{ Math.round(feedingStats.cout_moyen_kg || 0) }} F</p>
         </div>
         <DollarSign class="w-5 h-5" />
       </div>
@@ -106,7 +76,7 @@ onMounted(loadAllData);
 
     <div class="bg-white p-6 sm:p-8 rounded-[2rem] border border-gray-100 shadow-sm">
       <h3 class="font-bold text-slate-800 mb-6">Consommation Journalière</h3>
-      <FeedingChart v-if="dataChart.labels.length > 0" :chartData="dataChart" />
+      <FeedingChart v-if="feedingChart.labels && feedingChart.labels.length > 0" :chartData="feedingChart" />
       <div v-else class="h-64 flex items-center justify-center text-gray-400 italic">
         Aucune donnée de consommation sur les 7 derniers jours
       </div>
@@ -119,7 +89,7 @@ onMounted(loadAllData);
       </div>
       
       <div class="p-4 sm:p-6 space-y-4">
-        <div v-for="item in feedings" :key="item.id" class="flex items-center justify-between bg-gray-50/50 p-4 rounded-2xl border border-gray-100 hover:bg-green-50/30 transition-colors">
+        <div v-for="item in feedingHistory" :key="item.id" class="flex items-center justify-between bg-gray-50/50 p-4 rounded-2xl border border-gray-100 hover:bg-green-50/30 transition-colors">
           <div class="flex items-center gap-4">
             <div class="bg-[#16a34a] p-3 rounded-2xl text-white"><Utensils class="w-5 h-5" /></div>
             <div>
@@ -135,7 +105,7 @@ onMounted(loadAllData);
           </div>
         </div>
 
-        <div v-if="feedings.length === 0" class="text-center py-10 text-gray-400 italic text-sm">
+        <div v-if="feedingHistory.length === 0" class="text-center py-10 text-gray-400 italic text-sm">
           Aucun enregistrement trouvé.
         </div>
       </div>

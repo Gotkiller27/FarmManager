@@ -1,5 +1,5 @@
 /* FarmManager Responsive Design - Mobile-First Utilities */
-
+@reference "tailwindcss";
 /* ====== RESPONSIVE TYPOGRAPHY ====== */
 .text-responsive-title {
   @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold;

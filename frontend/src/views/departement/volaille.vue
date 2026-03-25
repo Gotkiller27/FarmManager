@@ -1,13 +1,13 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
-import api from '@/services/api.js';
 import { Plus, Users, Calendar, TrendingUp, X } from 'lucide-vue-next';
 import { useToastStore } from '@/stores/toast'
+import { useCampaignStore } from '@/stores/campaignStore'
 
 const toastStore = useToastStore();
+const campaignStore = useCampaignStore();
 
 // ÉTATS
-const campaigns = ref([]);
 const loading = ref(true);
 const showModal = ref(false); 
 const isSubmitting = ref(false);
@@ -36,8 +36,7 @@ const getStatusColor = (status) => {
 const fetchCampaigns = async () => {
   try {
     loading.value = true;
-    const response = await api.get('/campaigns/department/1');
-    campaigns.value = response.data;
+    await campaignStore.fetchDepartmentCampaigns(1);
   } catch (err) {
     console.error("Erreur API:", err);
   } finally {
@@ -49,10 +48,9 @@ const fetchCampaigns = async () => {
 const submitForm = async () => {
   isSubmitting.value = true;
   try {
-    await api.post('/campaigns', form);
+    await campaignStore.createCampaign(form);
     toastStore.success("Campagne créée avec succès.");
     showModal.value = false; 
-    await fetchCampaigns(); 
     
     // Reset du formulaire
     form.nom = '';
@@ -88,7 +86,7 @@ onMounted(fetchCampaigns);
     </div>
 
     <div v-if="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-      <div v-for="camp in campaigns" :key="camp.id" 
+      <div v-for="camp in campaignStore.campaigns" :key="camp.id" 
            class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all cursor-pointer hover:-translate-y-1"
            @click="$router.push(`/layout-principale/campaign/${camp.id}`)">
         
