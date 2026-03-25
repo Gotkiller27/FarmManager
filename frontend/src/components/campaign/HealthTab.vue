@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
+import { storeToRefs } from 'pinia';
 import { Doughnut } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Activity, Plus, HeartPulse, Skull, Clock, ChevronRight } from 'lucide-vue-next';
@@ -9,28 +10,18 @@ import AddHealthModal from './AddHealthModal.vue';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const props = defineProps(['campaignId']);
-const stats = ref({ vivant: 0, mort: 0, malade: 0 });
-const history = ref([]);
+const campaignStore = useCampaignStore();
+const { healthStats, healthHistory } = storeToRefs(campaignStore);
 const isModalOpen = ref(false);
 
 // Récupération des statistiques pour le graphique
 const fetchStats = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/health-stats`);
-    stats.value = data;
-  } catch (err) {
-    console.error("Erreur stats santé:", err);
-  }
+  await campaignStore.fetchHealthStats(props.campaignId);
 };
 
 // Récupération de l'historique des soins
 const fetchHistory = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/health-history`);
-    history.value = data;
-  } catch (err) {
-    console.error("Erreur historique santé:", err);
-  }
+  await campaignStore.fetchHealthHistory(props.campaignId);
 };
 
 const refreshAll = () => {
@@ -42,7 +33,7 @@ const refreshAll = () => {
 const chartData = computed(() => ({
   labels: ['Vivants', 'Malades', 'Décédés'],
   datasets: [{
-    data: [stats.value.vivant, stats.value.malade, stats.value.mort],
+    data: [healthStats.value.vivant, healthStats.value.malade, healthStats.value.mort],
     backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
     hoverOffset: 10,
     borderWidth: 0
@@ -90,7 +81,7 @@ onMounted(refreshAll);
             <div class="bg-orange-100 p-4 rounded-2xl text-orange-600"><Activity /></div>
             <div>
               <p class="text-gray-400 text-[10px] font-bold uppercase">Sujets Malades</p>
-              <p class="text-3xl font-black text-slate-800">{{ stats.malade }}</p>
+              <p class="text-3xl font-black text-slate-800">{{ healthStats.malade }}</p>
             </div>
           </div>
           <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-4 text-red-600">
@@ -98,7 +89,7 @@ onMounted(refreshAll);
             <div>
               <p class="text-red-400 text-[10px] font-bold uppercase">Taux de Mortalité</p>
               <p class="text-3xl font-black">
-                {{ ((stats.mort / (stats.vivant + stats.mort + stats.malade || 1)) * 100).toFixed(1) }}%
+                {{ ((healthStats.mort / (healthStats.vivant + healthStats.mort + healthStats.malade || 1)) * 100).toFixed(1) }}%
               </p>
             </div>
           </div>
@@ -127,7 +118,7 @@ onMounted(refreshAll);
       </div>
 
       <div class="p-2 space-y-1">
-        <div v-for="event in history" :key="event.id" 
+        <div v-for="event in healthHistory" :key="event.id" 
           class="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group">
           
           <div class="flex items-center gap-4">
@@ -162,7 +153,7 @@ onMounted(refreshAll);
           </div>
         </div>
 
-        <div v-if="history.length === 0" class="text-center py-12">
+        <div v-if="healthHistory.length === 0" class="text-center py-12">
           <Activity class="w-12 h-12 text-gray-100 mx-auto mb-2" />
           <p class="text-gray-400 text-sm italic">Aucun acte médical enregistré pour le moment.</p>
         </div>

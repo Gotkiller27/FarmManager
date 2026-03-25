@@ -10,6 +10,18 @@ export const useUserStore = defineStore('userStore', {
     editingUser: null, // Pour suivre l'utilisateur en cours de modification
   }),
 
+  getters: {
+    // Ce getter accepte un argument 'roleName'
+    usersByRole: (state) => {
+      return (roleName) => state.users.filter(user => user.role === roleName);
+    },
+
+    //  Compteur dynamique pour les statistiques
+    countByRole: (state) => {
+      return (roleName) => state.users.filter(user => user.role === roleName).length;
+    }
+  },
+
   // --- ACTIONS (MÉTHODES) ---
   actions: {
     // 1. Récupérer tous les utilisateurs

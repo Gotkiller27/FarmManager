@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import api from '@/services/api';
+import { useCampaignStore } from '@/stores/campaignStore';
+import { storeToRefs } from 'pinia';
 import { Line } from 'vue-chartjs';
 import { 
   Chart as ChartJS, CategoryScale, LinearScale, 
@@ -12,41 +13,30 @@ import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-vue-nex
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend);
 
 const props = defineProps(['campaignId']);
-const expenses = ref([]);
-const chartDataFromServer = ref([]);
-const summary = ref({ recettes: 0, charges: 0, benefice: 0 });
+const campaignStore = useCampaignStore();
+const { expenses, financeSummary, financeChart } = storeToRefs(campaignStore);
 
 const fetchData = async () => {
   if (!props.campaignId) return;
   try {
-    const [expRes, sumRes, chartRes] = await Promise.all([
-      api.get(`/campaigns/${props.campaignId}/expenses`),
-      api.get(`/campaigns/${props.campaignId}/financial-summary`),
-      api.get(`/campaigns/${props.campaignId}/financial-chart`) // Ta nouvelle route SQL
+    await Promise.all([
+      campaignStore.fetchExpenses(props.campaignId),
+      campaignStore.fetchFinanceSummary(props.campaignId),
+      campaignStore.fetchFinanceChart(props.campaignId)
     ]);
-    
-    expenses.value = expRes.data;
-    
-    // Protection contre le bug du collage de texte (Number)
-    summary.value = {
-      recettes: Number(sumRes.data.recettes) || 0,
-      charges: Number(sumRes.data.charges) || 0,
-      benefice: Number(sumRes.data.benefice) || 0
-    };
-    
-    chartDataFromServer.value = chartRes.data;
   } catch (err) {
-    console.error("Erreur Finance:", err);
+    console.error("Erreur finances:", err);
   }
+    
 };
 
 // Configuration du Graphique
 const chartConfig = computed(() => ({
-  labels: chartDataFromServer.value.map(d => d.date),
+  labels: financeChart.value.map(d => d.date),
   datasets: [
     {
       label: 'Recettes',
-      data: chartDataFromServer.value.map(d => d.recettes),
+      data: financeChart.value.map(d => d.recettes),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
       fill: true,
@@ -55,7 +45,7 @@ const chartConfig = computed(() => ({
     },
     {
       label: 'Charges',
-      data: chartDataFromServer.value.map(d => d.charges),
+      data: financeChart.value.map(d => d.charges),
       borderColor: '#ef4444',
       backgroundColor: 'transparent',
       borderDash: [5, 5],
@@ -85,7 +75,7 @@ onMounted(fetchData);
       <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Recettes Totales</p>
         <div class="flex items-center justify-between">
-          <h3 class="text-2xl font-black text-slate-800">{{ summary.recettes.toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
+          <h3 class="text-2xl font-black text-slate-800">{{ (financeSummary?.recettes || 0).toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
           <ArrowUpRight class="text-green-500 w-5 h-5" />
         </div>
       </div>
@@ -93,14 +83,14 @@ onMounted(fetchData);
       <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Charges Totales</p>
         <div class="flex items-center justify-between">
-          <h3 class="text-2xl font-black text-slate-800">{{ summary.charges.toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
+          <h3 class="text-2xl font-black text-slate-800">{{ (financeSummary?.charges || 0).toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
           <ArrowDownRight class="text-red-500 w-5 h-5" />
         </div>
       </div>
 
-      <div :class="summary.benefice >= 0 ? 'bg-[#065f46]' : 'bg-red-600'" class="p-5 rounded-[2rem] shadow-lg text-white">
+      <div :class="(financeSummary?.benefice || 0) >= 0 ? 'bg-[#065f46]' : 'bg-red-600'" class="p-5 rounded-[2rem] shadow-lg text-white">
         <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest mb-1">Bénéfice Net</p>
-        <h3 class="text-2xl font-black">{{ summary.benefice.toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
+        <h3 class="text-2xl font-black">{{ (financeSummary?.benefice || 0).toLocaleString() }} <small class="text-[10px]">FCFA</small></h3>
       </div>
     </div>
 

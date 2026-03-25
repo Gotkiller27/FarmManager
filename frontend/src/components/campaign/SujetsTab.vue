@@ -1,30 +1,32 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore'; // Import du store
+import { storeToRefs } from 'pinia'; // Pour garder la réactivité
 import QrcodeVue from 'qrcode.vue'; 
 import { Bird, QrCode, Plus, Search, Printer, X } from 'lucide-vue-next';
 import AddSujetBatchModal from './AddSujetBatchModal.vue';
 import SubjectTrackingModal from './SubjectTrackingModal.vue';
 
 const props = defineProps(['campaignId']);
-const sujets = ref([]);
+
+// Initialisation du store
+const campaignStore = useCampaignStore();
+// Extraction réactive des sujets et du loading depuis le store
+const { sujets, loading } = storeToRefs(campaignStore);
+
 const isModalOpen = ref(false);
 const searchQuery = ref('');
 const isTrackingModalOpen = ref(false);
 const selectedSubjectId = ref(null);
 
-// Chargement des données
-const fetchSujets = async () => {
-  try {
-    const { data } = await api.get(`/campaigns/${props.campaignId}/sujets`);
-    sujets.value = data;
-  } catch (err) {
-    console.error("Erreur chargement sujets", err);
-  }
+// Chargement des données via le store
+const loadSujets = async () => {
+  await campaignStore.fetchSujets(props.campaignId);
 };
 
 // Filtrage pour la recherche
 const filteredSujets = computed(() => {
+  if (!sujets.value) return [];
   return sujets.value.filter(s => 
     s.qr_code_token.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
@@ -41,7 +43,7 @@ const openTrackingModal = (subjectId) => {
   isTrackingModalOpen.value = true;
 };
 
-onMounted(fetchSujets);
+onMounted(loadSujets);
 </script>
 
 <template>
@@ -68,7 +70,11 @@ onMounted(fetchSujets);
         class="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 rounded-lg sm:rounded-2xl border-none bg-white shadow-sm ring-1 ring-gray-100 focus:ring-2 focus:ring-green-500 transition-all text-xs sm:text-base">
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 print:hidden">
+    <div v-if="loading" class="flex justify-center py-12 print:hidden">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#16a34a]"></div>
+    </div>
+
+    <div v-if="!loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 print:hidden">
       <div v-for="sujet in filteredSujets" :key="sujet.id" 
         class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
         
@@ -99,7 +105,7 @@ onMounted(fetchSujets);
     <div class="hidden print:block">
       <div class="grid grid-cols-4 gap-4">
         <div v-for="sujet in sujets" :key="'print-'+sujet.id" class="border border-black p-4 text-center break-inside-avoid mb-4">
-          <p class="text-[9px] font-bold mb-2">AGRIMANAGE - SUJET</p>
+          <p class="text-[9px] font-bold mb-2 uppercase">AgriManage - Sujet</p>
           <div class="flex justify-center mb-2">
             <QrcodeVue :value="sujet.qr_code_token" :size="100" level="H" />
           </div>
@@ -109,16 +115,16 @@ onMounted(fetchSujets);
       </div>
     </div>
 
-    <div v-if="sujets.length === 0" class="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+    <div v-if="!loading && filteredSujets.length === 0" class="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
       <Bird class="w-16 h-16 text-gray-200 mx-auto mb-4" />
-      <p class="text-gray-400 font-medium">Aucun sujet enregistré.</p>
+      <p class="text-gray-400 font-medium">Aucun sujet trouvé.</p>
     </div>
 
     <AddSujetBatchModal 
       :isOpen="isModalOpen" 
       :campaignId="campaignId"
       @close="isModalOpen = false"
-      @refresh="fetchSujets"
+      @refresh="loadSujets"
     />
 
     <SubjectTrackingModal 

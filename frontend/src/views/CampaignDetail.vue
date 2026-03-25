@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, markRaw } from 'vue';
 import { useRoute } from 'vue-router';
-import api from '@/services/api.js';
 import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird, HeartPulse , ShoppingCart} from 'lucide-vue-next';
+import { useCampaignStore } from '@/stores/campaignStore'
 
 // Import des sous-composants
 import OverviewTab from '@/components/campaign/OverviewTab.vue';
@@ -14,7 +14,7 @@ import SalesTab from '@/components/campaign/SalesTab.vue'; // <-- Nouvel import
 
 const route = useRoute();
 const campaignId = route.params.id;
-const campaign = ref(null);
+const campaignStore = useCampaignStore();
 
 // Gestion des onglets
 const activeTabId = ref('overview');
@@ -36,8 +36,7 @@ const changeTab = (tab) => {
 
 onMounted(async () => {
   try {
-    const response = await api.get(`/campaigns/${campaignId}`);
-    campaign.value = response.data;
+    await campaignStore.fetchCampaignById(campaignId);
   } catch (err) {
     console.error("Erreur chargement campagne", err);
   }
@@ -45,13 +44,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col" v-if="campaign">
+  <div class="h-full flex flex-col" v-if="campaignStore.currentCampaign">
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
       <button @click="$router.back()" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
         <ChevronLeft class="w-5 h-5 text-gray-600" />
       </button>
       <div>
-        <h1 class="text-xl font-black text-[#065f46]">{{ campaign.nom }}</h1>
+        <h1 class="text-xl font-black text-[#065f46]">{{ campaignStore.currentCampaign.nom }}</h1>
         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ID Campagne: #{{ campaignId }}</p>
       </div>
     </div>
@@ -80,7 +79,7 @@ onMounted(async () => {
           <component 
             :is="currentComponent" 
             :campaignId="campaignId" 
-            :campaign="campaign" 
+            :campaign="campaignStore.currentCampaign" 
             @refresh-campaign="onMounted" 
           />
         </transition>

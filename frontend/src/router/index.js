@@ -10,6 +10,8 @@ import SpaLayout from '../layouts/SpaLayout.vue'
 import DashboardGerant from '@/views/DashboardGerant.vue'
 import DashboardAgent from '@/views/DashboardAgent.vue'
 import { useAuthStore } from '@/stores/auth.js'
+import ProfileView from '@/views/ProfileView.vue'
+
 import { useToastStore } from '@/stores/toast'
 import Volaille from '@/views/departement/volaille.vue'
 import CampaignDetail from '@/views/CampaignDetail.vue'
@@ -25,6 +27,8 @@ const routes = [
       { path: 'managers', name: 'managers', component: Managers },
       { path: 'agents', name: 'agents', component: Agents },
       { path: 'users', name: 'users', component: Users },
+      { path: '/profile', name: 'profile', component: ProfileView },
+
       
       // Ajoute des routes vides ou vers Dashboard pour les départements en attendant
       { path: 'departments/volaille', name: 'volaille', component: Volaille },
@@ -40,7 +44,7 @@ const routes = [
     ],
     meta: {requireAuth: true}
   },
-
+ 
   {
     path: '/',
     component: SpaLayout,

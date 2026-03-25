@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive, onUnmounted } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
+import { storeToRefs } from 'pinia';
 import { Html5QrcodeScanner } from "html5-qrcode"; // Importation du scanner
 import { 
   ShoppingCart, TrendingUp, DollarSign, 
@@ -9,10 +10,10 @@ import {
 import { useToastStore } from '@/stores/toast'
 
 const toastStore = useToastStore();
+const campaignStore = useCampaignStore();
+const { ventes, salesSummary } = storeToRefs(campaignStore);
 
 const props = defineProps(['campaignId']);
-const sales = ref([]);
-const summary = ref({ recettes: 0, charges: 0, benefice: 0, rentabilite: 0 });
 const isModalOpen = ref(false);
 const isSubmitting = ref(false);
 const showCamera = ref(false); // Pour afficher/masquer la zone caméra
@@ -54,31 +55,10 @@ const stopScanner = () => {
 const fetchSalesData = async () => {
   if (!props.campaignId) return;
   try {
-    const [salesRes, summaryRes] = await Promise.all([
-      api.get(`/campaigns/${props.campaignId}/ventes`),
-      api.get(`/campaigns/${props.campaignId}/financial-summary`)
+    await Promise.all([
+      campaignStore.fetchVentes(props.campaignId),
+      campaignStore.fetchSalesSummary(props.campaignId)
     ]);
-    
-    sales.value = salesRes.data;
-
-    const cleanNumber = (val) => {
-      if (!val) return 0;
-      const parts = String(val).split('.');
-      if (parts.length > 2) {
-        return Number(parts[0] + '.' + parts[1]) || 0;
-      }
-      return Number(val) || 0;
-    };
-
-    const recettes = cleanNumber(summaryRes.data.recettes);
-    const charges = cleanNumber(summaryRes.data.charges);
-
-    summary.value = {
-      recettes: recettes,
-      charges: charges,
-      benefice: recettes - charges,
-      rentabilite: summaryRes.data.rentabilite || 0
-    };
   } catch (err) {
     console.error("Erreur récup data:", err);
   }
@@ -92,7 +72,7 @@ const submitVente = async () => {
       finalData.quantite = 1;
     }
 
-    await api.post(`/campaigns/${props.campaignId}/ventes`, finalData);
+    await campaignStore.addVente(props.campaignId, finalData);
     toastStore.success("Vente enregistrée avec succès.");
     isModalOpen.value = false;
     stopScanner(); // Sécurité : on éteint la caméra si ouverte
@@ -136,7 +116,7 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
           <div class="bg-green-100 p-3 rounded-xl text-green-600"><DollarSign class="w-4 h-4" /></div>
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Recettes</p>
         </div>
-        <p class="text-2xl md:text-3xl font-black">{{ Math.round(summary?.recettes || 0).toLocaleString() }} FCFA</p>
+        <p class="text-2xl md:text-3xl font-black">{{ Math.round(salesSummary?.recettes || 0).toLocaleString() }} FCFA</p>
       </div>
 
       <div class="bg-white p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm text-slate-800">
@@ -144,15 +124,15 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
           <div class="bg-red-100 p-3 rounded-xl text-red-600"><TrendingUp class="w-4 h-4" /></div>
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Charges</p>
         </div>
-        <p class="text-2xl md:text-3xl font-black">{{ Math.round(summary?.charges || 0).toLocaleString() }} FCFA</p>
+        <p class="text-2xl md:text-3xl font-black">{{ Math.round(salesSummary?.charges || 0).toLocaleString() }} FCFA</p>
       </div>
 
-      <div :class="(summary?.benefice || 0) >= 0 ? 'bg-[#10b981]' : 'bg-red-500'" class="p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-xl transition-all">
+      <div :class="(salesSummary?.benefice || 0) >= 0 ? 'bg-[#10b981]' : 'bg-red-500'" class="p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-xl transition-all">
         <div class="flex items-center gap-4 mb-2">
           <div class="bg-white/20 p-3 rounded-xl"><ShoppingCart class="w-4 h-4" /></div>
           <p class="text-[10px] font-bold text-white/70 uppercase tracking-widest">Bénéfice</p>
         </div>
-        <p class="text-2xl md:text-3xl font-black">{{ Math.round(summary?.benefice || 0).toLocaleString() }} FCFA</p>
+        <p class="text-2xl md:text-3xl font-black">{{ Math.round(salesSummary?.benefice || 0).toLocaleString() }} FCFA</p>
       </div>
     </div>
 
@@ -172,7 +152,7 @@ onUnmounted(stopScanner); // Important pour couper la caméra si on quitte la pa
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="sale in sales" :key="sale.id" class="hover:bg-green-50/30 transition-colors">
+            <tr v-for="sale in ventes" :key="sale.id" class="hover:bg-green-50/30 transition-colors">
               <td class="p-6 text-sm">
                 <p class="font-bold">{{ sale.client_nom || 'Client' }}</p>
                 <p class="text-gray-400 text-xs">{{ new Date(sale.date_vente).toLocaleDateString() }}</p>

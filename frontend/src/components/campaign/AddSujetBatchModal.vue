@@ -1,10 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue';
-import api from '@/services/api.js';
+import { useCampaignStore } from '@/stores/campaignStore';
 import { X, Loader2, Bird, Hash, Calendar, MapPin } from 'lucide-vue-next';
 import { useToastStore } from '@/stores/toast'
 
 const toastStore = useToastStore();
+const campaignStore = useCampaignStore();
 
 const props = defineProps(['campaignId', 'isOpen']);
 const emit = defineEmits(['close', 'refresh']);
@@ -24,10 +25,14 @@ const handleSubmit = async () => {
   try {
     form.campagne_id = props.campaignId;
     
-    // On appelle la route de génération en masse (seedSujets)
-    await api.post('/campaigns/sujets/batch', form);
+    // On utilise le store
+    await campaignStore.addSujetBatch(form);
     
     toastStore.success("Lot de sujets généré avec succès.");
+    
+    // Rechargement des sujets depuis le store
+    await campaignStore.fetchSujets(props.campaignId);
+    
     emit('refresh');
     emit('close');
   } catch (err) {
