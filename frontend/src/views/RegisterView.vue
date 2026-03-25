@@ -11,7 +11,7 @@ const form = ref({
   first_name: '',
   email: '',
   password: '',
-  role: 'admin0', // J'ai mis Par défaut Admin pour la première création
+  role: 'admin', // J'ai mis Par défaut Admin pour la première création
 })
 
 const handleSignup = async () => {

@@ -1,14 +1,40 @@
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import { Plus, Users, Calendar, TrendingUp, X, UserPlus } from 'lucide-vue-next';
 import { useToastStore } from '@/stores/toast'
 import { useCampaignStore } from '@/stores/campaignStore'
 // Import du nouveau store pour les départements
 import { useDepartmentStore } from '@/stores/departementStore';
+import { useAuthStore } from '@/stores/auth';
 
 const toastStore = useToastStore();
 const campaignStore = useCampaignStore();
 const departmentStore = useDepartmentStore();
+const authStore = useAuthStore();
+
+// Vérifier si l'utilisateur est un gérant
+const isGerant = computed(() => {
+  const rawRole = (authStore.user?.role || '').toString();
+  const normalized = rawRole
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
+  const result = normalized === 'gerant';
+  console.log('isGerant computed:', result, 'role:', rawRole, 'normalized:', normalized);
+  return result;
+});
+
+// Vérifier si l'utilisateur est un administrateur
+const isAdmin = computed(() => {
+  const rawRole = (authStore.user?.role || '').toString();
+  const normalized = rawRole
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
+  return normalized === 'admin';
+});
 
 // ÉTATS
 const loading = ref(true);
@@ -80,6 +106,10 @@ const fetchCampaigns = async () => {
 
 // SOUMETTRE L'ASSIGNATION
 const submitAssignation = async () => {
+  if (!isAdmin.value) {
+    toastStore.error("Seul un administrateur peut assigner un gérant.");
+    return;
+  }
   if (!selectedGerantId.value) return;
   isAssigning.value = true;
   try {
@@ -102,13 +132,26 @@ const submitAssignation = async () => {
 
 // SOUMETTRE LE FORMULAIRE CAMPAGNE
 const submitForm = async () => {
-  if (!currentGerant.value) {
-    toastStore.error("Veuillez d'abord assigner un gérant au département.");
+  // Vérifier d'abord si l'utilisateur est connecté
+  if (!authStore.user) {
+    toastStore.error("Vous devez être connecté pour créer une campagne.");
     return;
   }
   
+  // Si l'utilisateur est un gérant, il peut créer des campagnes dans tous les départements
+  if (!isGerant.value && !currentGerant.value) {
+    toastStore.error("Veuillez d'abord assigner un gérant au département.");
+    return;
+  }
+
+  if (isGerant.value) {
+    currentGerant.value = { user_id: authStore.user?.id, nom: authStore.user?.first_name || '', city: authStore.user?.city || '' };
+  }
+  
   isSubmitting.value = true;
-  form.gerant_id = currentGerant.value.user_id; 
+  // Si c'est un gérant connecté, utiliser son ID, sinon utiliser le gérant assigné au département
+  form.gerant_id = isGerant.value ? authStore.user.id : currentGerant.value.user_id; 
+  form.departement_id = 1; // S'assurer que le département est correct
 
   try {
     const success = await campaignStore.createCampaign(form);
@@ -146,8 +189,22 @@ onMounted(async () => {
         <p class="text-gray-500 text-xs sm:text-sm">Gérez vos cycles de production avicole</p>
       </div>
       
+      <!-- INFO GÉRANT ACTUEL - Masquée pour les gérants -->
+      <div v-if="!isGerant && currentGerant" class="bg-blue-50 border border-blue-200 rounded-xl p-4 w-full sm:w-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <UserPlus class="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <p class="text-sm font-bold text-blue-800">Gérant actuel</p>
+            <p class="text-sm text-blue-600">{{ currentGerant.nom || 'Gérant #' + currentGerant.user_id }} - {{ currentGerant.city }}</p>
+          </div>
+        </div>
+      </div>
+      
+      
       <div class="flex gap-2 w-full sm:w-auto">
-        <button @click="showAssignModal = true" class="flex-1 sm:flex-none flex items-center gap-2 bg-white border-2 border-[#16a34a] text-[#16a34a] px-4 py-2 rounded-xl hover:bg-green-50 transition-all font-semibold text-sm">
+        <button v-if="isAdmin" @click="showAssignModal = true" class="flex-1 sm:flex-none flex items-center gap-2 bg-white border-2 border-[#16a34a] text-[#16a34a] px-4 py-2 rounded-xl hover:bg-green-50 transition-all font-semibold text-sm">
           <UserPlus class="w-4 h-4" />
           Assigner Gérant
         </button>

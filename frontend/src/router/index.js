@@ -14,6 +14,8 @@ import ProfileView from '@/views/ProfileView.vue'
 
 import { useToastStore } from '@/stores/toast'
 import Volaille from '@/views/departement/volaille.vue'
+import Pisciculture from '@/views/departement/pisciculture.vue'
+import Bétail from '@/views/departement/betail.vue'
 import CampaignDetail from '@/views/CampaignDetail.vue'
 const routes = [
   {
@@ -32,8 +34,8 @@ const routes = [
       
       // Ajoute des routes vides ou vers Dashboard pour les départements en attendant
       { path: 'departments/volaille', name: 'volaille', component: Volaille },
-      { path: 'departments/betail', name: 'betail', component: Dashboard },
-      { path: 'departments/pisciculture', name: 'pisciculture', component: Dashboard },
+      { path: 'departments/betail', name: 'betail', component: Bétail },
+      { path: 'departments/pisciculture', name: 'pisciculture', component: Pisciculture },
       { path: 'my-campaigns', name: 'campaigns', component: Dashboard },
       { 
         path: 'campaign/:id', 
