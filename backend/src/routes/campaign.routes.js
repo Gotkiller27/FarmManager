@@ -17,7 +17,10 @@ import {
   recordVente,
   getVentes,
   getFinancialSummary,
-  getFinancialChartData 
+  getFinancialChartData ,
+  assignGerantToDept,       
+  getCurrentGerantByDept,   
+  getAllGerants
 } from '../controllers/campaign.controller.js';
 
 const router = express.Router();
@@ -34,8 +37,10 @@ router.post('/sujets/batch', seedSujets);
 // ==========================================
 // 2. ROUTES GET SPÉCIFIQUES (DÉPARTEMENT)
 // ==========================================
+router.post('/departments/assign-gerant', assignGerantToDept);
 router.get('/department/:deptId', getCampaignsByDept);
-
+router.get('/gerants', getAllGerants); // Pour remplir ton menu déroulant <select>
+router.get('/departments/:deptId/gerant', getCurrentGerantByDept); // Pour afficher le gérant actuel
 // ==========================================
 // 3. ROUTES GET PAR CAMPAGNE (:id)
 // ==========================================
