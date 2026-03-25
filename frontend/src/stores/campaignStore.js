@@ -1,39 +1,63 @@
 import { defineStore } from 'pinia';
 import api from '@/services/api.js';
 
+/** * EXPORT : useCampaignStore
+ * Ce store gère l'état global des campagnes, incluant les sujets, la santé, 
+ * l'alimentation et la comptabilité financière.
+ */
 export const useCampaignStore = defineStore('campaignStore', {
+  /**
+   * STATE : Définition des données réactives
+   */
   state: () => ({
+    // Données de base des campagnes
     campaigns: [],
     currentCampaign: null,
     campaign: null,
+    
+    // Données relatives aux sujets (animaux)
     sujets: [],
     sujet: null,
+    
+    // Historique et statistiques de santé (mortalité, maladies)
     healthHistory: [],
     healthStats: { vivant: 0, mort: 0, malade: 0 },
+    
+    // Suivi de l'alimentation (consommation et graphiques)
     feedingHistory: [],
     feedings: [],
     feedingStats: { total_kg: 0, total_cout: 0, cout_moyen_kg: 0 },
     feedingChart: { labels: [], datasets: [] },
+    
+    // Gestion des ventes et résumés financiers
     ventes: [],
     salesSummary: { recettes: 0, charges: 0, benefice: 0 },
     expenses: [],
     financeSummary: { recettes: 0, charges: 0, benefice: 0 },
     finances: null,
     financeChart: [],
+    
+    // États de l'interface utilisateur
     loading: false,
     error: null
   }),
 
+  /**
+   * ACTIONS : Méthodes de manipulation des données et appels API
+   */
   actions: {
+    /** 1. Gestion des erreurs internes du store */
     setError(message) {
       this.error = message;
       console.error('[campaignStore]', message);
     },
 
+    /** 2. Réinitialisation du message d'erreur */
     clearError() {
       this.error = null;
     },
 
+    /** 3. Récupération des campagnes par département */
     async fetchDepartmentCampaigns(departmentId) {
       this.loading = true;
       this.clearError();
@@ -47,6 +71,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 4. Création d'une nouvelle campagne */
     async createCampaign(payload) {
       this.loading = true;
       this.clearError();
@@ -64,6 +89,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 5. Récupération des détails d'une campagne spécifique */
     async fetchCampaignById(campaignId) {
       this.loading = true;
       this.clearError();
@@ -82,6 +108,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 6. Récupération de la liste des sujets d'une campagne */
     async fetchSujets(campaignId) {
       this.loading = true;
       this.clearError();
@@ -98,6 +125,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 7. Récupération d'un sujet précis par son identifiant */
     async fetchSujetById(campaignId, subjectId) {
       this.loading = true;
       this.clearError();
@@ -114,6 +142,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 8. Récupération de l'historique de santé (global ou par sujet) */
     async fetchHealthHistory(campaignId, subjectId) {
       this.loading = true;
       this.clearError();
@@ -131,6 +160,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 9. Récupération des compteurs de santé (vivants, morts, malades) */
     async fetchHealthStats(campaignId) {
       this.loading = true;
       this.clearError();
@@ -147,6 +177,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 10. Récupération des distributions alimentaires */
     async fetchFeedings(campaignId) {
       this.loading = true;
       this.clearError();
@@ -165,6 +196,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 11. Récupération de l'historique d'alimentation */
     async fetchFeedingHistory(campaignId) {
       this.loading = true;
       this.clearError();
@@ -181,6 +213,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 12. Récupération des statistiques globales d'alimentation */
     async fetchFeedingStats(campaignId) {
       this.loading = true;
       this.clearError();
@@ -197,6 +230,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 13. Récupération des données formatées pour le graphique d'alimentation */
     async fetchFeedingChart(campaignId) {
       this.loading = true;
       this.clearError();
@@ -221,6 +255,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 14. Récupération de l'historique des ventes */
     async fetchVentes(campaignId, subjectId = null) {
       this.loading = true;
       this.clearError();
@@ -238,6 +273,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 15. Récupération du résumé des ventes (recettes, etc.) */
     async fetchSalesSummary(campaignId) {
       this.loading = true;
       this.clearError();
@@ -254,6 +290,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 16. Récupération du bilan financier complet */
     async fetchFinancialSummary(campaignId) {
       this.loading = true;
       this.clearError();
@@ -270,10 +307,12 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 17. Alias pour la récupération du résumé financier */
     async fetchFinanceSummary(campaignId) {
       return this.fetchFinancialSummary(campaignId);
     },
 
+    /** 18. Récupération de la liste des dépenses */
     async fetchExpenses(campaignId) {
       this.loading = true;
       this.clearError();
@@ -290,6 +329,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 19. Récupération des données pour le graphique financier */
     async fetchFinanceChart(campaignId) {
       this.loading = true;
       this.clearError();
@@ -306,6 +346,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 20. Ajout massif (batch) de sujets à une campagne */
     async addSujetBatch(payload) {
       this.loading = true;
       this.clearError();
@@ -320,6 +361,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 21. Enregistrement d'un nouvel événement de santé */
     async addHealthRecord(payload) {
       this.loading = true;
       this.clearError();
@@ -334,6 +376,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 22. Enregistrement d'une nouvelle distribution de nourriture */
     async addFeeding(payload) {
       this.loading = true;
       this.clearError();
@@ -348,6 +391,7 @@ export const useCampaignStore = defineStore('campaignStore', {
       }
     },
 
+    /** 23. Enregistrement d'une nouvelle vente */
     async addVente(campaignId, payload) {
       this.loading = true;
       this.clearError();
