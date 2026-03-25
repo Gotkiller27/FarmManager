@@ -10,8 +10,9 @@ export const getAll = async (req, res, next) => {
 };
 
 export const addProfil = async (req, res, next) => {
+  const id = req.params.id
   try {
-    const newProfile = await gerantService.createProfile(req.body);
+    const newProfile = await gerantService.createProfile(id,req.body);
     res.status(201).json({ message: "Profil créé !", data: newProfile });
   } catch (error) {
     next(error);
