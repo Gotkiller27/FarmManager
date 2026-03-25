@@ -87,7 +87,7 @@ onMounted(() => {
         <span class="text-sm text-slate-500">{{ departements.length }} secteurs actifs</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         <div v-for="dept in departements" :key="dept.id" class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
           
           <div class="p-6 flex-1">
