@@ -43,8 +43,25 @@ const getAll =async (req,res,next)=>{
   }
 };
 
+const changePassword = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    const result = await userService.changePassword(id, { oldPassword, newPassword });
+    
+    res.status(200).json({
+      message: "Mot de passe mis à jour avec succès",
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
     getAll,
     deleteOne,
-    update
+    update,
+    changePassword
 }

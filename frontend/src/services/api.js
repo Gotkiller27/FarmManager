@@ -16,6 +16,18 @@ export const updateAdmin = async (adminId, updateData) => {
   return response.data;
 };
 
+// Mettre à jour le profil utilisateur
+export const updateProfile = async (userId, profileData) => {
+  const response = await api.put(`/users/${userId}`, profileData);
+  return response.data;
+};
+
+// Changer le mot de passe
+export const changePassword = async (userId, passwordData) => {
+  const response = await api.put(`/users/${userId}/password`, passwordData);
+  return response.data;
+};
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;

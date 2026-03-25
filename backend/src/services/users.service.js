@@ -1,4 +1,5 @@
-import db from "../config/db.js"
+import db from "../config/db.js";
+import bcrypt from "bcrypt";
 
 const getAllUsers = async ()=>{
   
@@ -36,22 +37,109 @@ const deleteUser = async (userId) => {
 
 const updateUser = async (userId, updateData) => {
   try {
-    const { first_name, last_name, email, role } = updateData;
+    const updates = [];
+    const values = [];
+    
+    if (updateData.first_name !== undefined) {
+      updates.push('first_name = ?');
+      values.push(updateData.first_name);
+    }
+    if (updateData.last_name !== undefined) {
+      updates.push('last_name = ?');
+      values.push(updateData.last_name);
+    }
+    if (updateData.email !== undefined) {
+      updates.push('email = ?');
+      values.push(updateData.email);
+    }
+    if (updateData.role !== undefined) {
+      updates.push('role = ?');
+      values.push(updateData.role);
+    }
+    if (updateData.age !== undefined) {
+      updates.push('age = ?');
+      values.push(updateData.age);
+    }
+    if (updateData.tel !== undefined) {
+      updates.push('tel = ?');
+      values.push(updateData.tel);
+    }
+    if (updateData.city !== undefined) {
+      updates.push('city = ?');
+      values.push(updateData.city);
+    }
+    if (updateData.bio !== undefined) {
+      updates.push('bio = ?');
+      values.push(updateData.bio);
+    }
 
-    // 1. On exécute l'UPDATE
-    const [result] = await db.query(
-      "UPDATE users SET first_name = ?, last_name = ?, email = ?, role = ? WHERE id = ?",
-      [first_name, last_name, email, role, userId]
-    );
+    if (updates.length === 0) {
+      const err = new Error("Aucune modification fournie.");
+      err.statusCode = 400;
+      throw err;
+    }
 
-    // 2. On vérifie si une ligne a été modifiée
+    values.push(userId);
+    const sql = `UPDATE users SET ${updates.join(', ')}, updated_at = NOW() WHERE id = ?`;
+    const [result] = await db.query(sql, values);
+
     if (result.affectedRows === 0) {
       const err = new Error("Utilisateur non trouvé ou aucune modification effectuée.");
       err.statusCode = 404;
       throw err;
     }
 
-    return { id: userId, ...updateData };
+    // Fetch updated user
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
+    return rows[0];
+  } catch (error) {
+    throw error;
+  }
+};
+
+const changePassword = async (userId, passwordData) => {
+  try {
+    const { oldPassword, newPassword } = passwordData;
+
+    if (!oldPassword || !newPassword) {
+      const err = new Error("oldPassword et newPassword requis.");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Fetch user
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
+    const user = rows[0];
+    if (!user) {
+      const err = new Error("Utilisateur non trouvé.");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      const err = new Error("Mot de passe actuel incorrect.");
+      err.statusCode = 401;
+      throw err;
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update
+    const [result] = await db.query(
+      "UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?",
+      [hashedPassword, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      const err = new Error("Erreur lors de la mise à jour du mot de passe.");
+      err.statusCode = 500;
+      throw err;
+    }
+
+    return { message: "Mot de passe mis à jour avec succès" };
   } catch (error) {
     throw error;
   }
@@ -60,5 +148,6 @@ const updateUser = async (userId, updateData) => {
 export {
     getAllUsers,
     deleteUser,
-    updateUser
+    updateUser,
+    changePassword
 }
