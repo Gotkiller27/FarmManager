@@ -5,7 +5,7 @@ const router = Router();
 
 
 router.get("/getAllAgents", agentsControllers.getAll);
-router.post("/register-profile", agentsControllers.addAgent);
+router.post("/:id", agentsControllers.addAgent);
 router.put("/:id", agentsControllers.update);
 router.delete("/:id", agentsControllers.deleteOne);
 

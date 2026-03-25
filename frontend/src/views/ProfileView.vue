@@ -1,15 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useUserStore } from '@/stores/userStore';
-import EditProfileModal from '@/Components/EditProfileModale.vue';
+import { useAdminStore } from '@/stores/adminStore'; // Utilisation du store des administrateurs
+import EditProfileModale from '@/Components/EditProfileModale.vue';
 import { 
   UserIcon, EnvelopeIcon, MapPinIcon, PhoneIcon, 
   BriefcaseIcon, CheckBadgeIcon, ExclamationCircleIcon 
 } from '@heroicons/vue/24/outline';
 
 const authStore = useAuthStore();
-const userStore = useUserStore();
+const adminStore = useAdminStore(); // Store des administrateurs
 
 const user = computed(() => authStore.user);
 const isModalOpen = ref(false);
@@ -22,7 +22,7 @@ const isProfileIncomplete = computed(() => {
 
 // Sauvegarde des modifications
 const onSaveProfile = async (updatedData) => {
-  const success = await userStore.updateUser(user.value.id, updatedData);
+  const success = await adminStore.updateAdmin(user.value.id, updatedData); // Utilisation de adminStore
   if (success) {
     // Mise à jour locale du store Auth pour refléter les changements immédiatement
     authStore.user = { ...authStore.user, ...updatedData };
@@ -97,7 +97,7 @@ const onSaveProfile = async (updatedData) => {
       </div>
     </div>
 
-    <EditProfileModal 
+    <EditProfileModale 
       :isOpen="isModalOpen" 
       :user="user" 
       @close="isModalOpen = false" 

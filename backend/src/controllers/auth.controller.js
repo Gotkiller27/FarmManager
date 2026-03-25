@@ -1,6 +1,6 @@
 import { register, loginUser } from "../services/auth.service.js";
 import { getAllUsers } from "../services/users.service.js";
-import db from "../config/database.js"; // À adapter selon ta config DB
+import db from "../config/db.js"; // À adapter selon ta config DB
 
 const create = async (req, res, next) => {
   try {
