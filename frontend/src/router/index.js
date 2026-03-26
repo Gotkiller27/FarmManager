@@ -17,6 +17,7 @@ import Volaille from '@/views/departement/volaille.vue'
 import Pisciculture from '@/views/departement/pisciculture.vue'
 import Bétail from '@/views/departement/betail.vue'
 import CampaignDetail from '@/views/CampaignDetail.vue'
+import MyCampaigns from '@/views/MyCampaigns.vue'
 const routes = [
   {
     path: '/layout-principale', // On utilise la racine pour le layout principal
@@ -36,7 +37,7 @@ const routes = [
       { path: 'departments/volaille', name: 'volaille', component: Volaille },
       { path: 'departments/betail', name: 'betail', component: Bétail },
       { path: 'departments/pisciculture', name: 'pisciculture', component: Pisciculture },
-      { path: 'my-campaigns', name: 'campaigns', component: Dashboard },
+      { path: 'my-campaigns', name: 'my-campaigns', component: MyCampaigns },
       { 
         path: 'campaign/:id', 
         name: 'campaign-detail', 

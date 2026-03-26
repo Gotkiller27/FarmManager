@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middlewares/requireAuth.js';
 import { 
   getCampaignsByDept, 
   createCampaign, 
@@ -18,6 +19,7 @@ import {
   getVentes,
   getFinancialSummary,
   getFinancialChartData ,
+  getMyCampaigns,
   assignGerantToDept,       
   getCurrentGerantByDept,   
   getAllGerants
@@ -38,9 +40,9 @@ router.post('/sujets/batch', seedSujets);
 // 2. ROUTES GET SPÉCIFIQUES (DÉPARTEMENT)
 // ==========================================
 router.post('/departments/assign-gerant', assignGerantToDept);
-router.get('/department/:deptId', getCampaignsByDept);
-router.get('/gerants', getAllGerants); // Pour remplir ton menu déroulant <select>
-router.get('/departments/:deptId/gerant', getCurrentGerantByDept); // Pour afficher le gérant actuel
+// router.get('/department/:deptId', requireAuth, getCampaignsByDept);
+// router.get('/gerants', getAllGerants); // Pour remplir ton menu déroulant <select>
+// router.get('/departments/:deptId/gerant', getCurrentGerantByDept); // Pour afficher le gérant actuel
 // ==========================================
 // 3. ROUTES GET PAR CAMPAGNE (:id)
 // ==========================================
@@ -69,4 +71,6 @@ router.get('/:id', getCampaignById);
 
 // Route pour les données du graphique financier
 router.get('/:id/financial-chart', getFinancialChartData);
+
+router.get('/my-campaigns', getMyCampaigns);
 export default router;

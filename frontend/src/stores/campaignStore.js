@@ -12,6 +12,7 @@ export const useCampaignStore = defineStore('campaignStore', {
   state: () => ({
     // Données de base des campagnes
     campaigns: [],
+    myCampaigns: [], // AJOUTÉ : Pour stocker les campagnes spécifiques à l'agent
     currentCampaign: null,
     campaign: null,
     
@@ -36,7 +37,7 @@ export const useCampaignStore = defineStore('campaignStore', {
     financeSummary: { recettes: 0, charges: 0, benefice: 0 },
     finances: null,
     financeChart: [],
-    
+    agentStats: { nb_missions: 0, total_morts: 0, total_sujets: 0, distributions_jour: 0 },
     // États de l'interface utilisateur
     loading: false,
     error: null
@@ -404,12 +405,32 @@ export const useCampaignStore = defineStore('campaignStore', {
       } finally {
         this.loading = false;
       }
-    }
+    },
+
+    /** 24. AJOUTÉ : Récupération des campagnes assignées à l'agent connecté */
+    async fetchMyCampaigns() {
+      this.loading = true;
+      this.clearError();
+      try {
+        const resp = await api.get('/campaigns/my-campaigns');
+        this.myCampaigns = resp.data;
+        return resp.data;
+      } catch (err) {
+        this.setError('Impossible de charger vos missions personnelles');
+        this.myCampaigns = [];
+        return [];
+      } finally {
+        this.loading = false;
+      }
+    },
     
+    async fetchAgentGlobalStats() {
+  try {
+    const resp = await api.get('/campaigns/agent/global-stats');
+    this.agentStats = resp.data;
+  } catch (err) {
+    console.error("Erreur stats agent", err);
+  }
+}
   }
 });
-
-
-
-
-
