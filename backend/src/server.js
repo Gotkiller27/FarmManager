@@ -1,9 +1,9 @@
 import app from "./app.js"
-import pool from "./config/db.js";
+import db from "./config/db.js";
 
 async function test() {
   try {
-    const [rows] = await pool.query("SELECT NOW() AS TIME");
+    const [rows] = await db.query("SELECT NOW() AS TIME");
     console.log("✅ Connexion réussie !");
     console.log(rows);
 

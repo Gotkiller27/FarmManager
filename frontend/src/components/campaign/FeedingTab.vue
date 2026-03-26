@@ -1,0 +1,122 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useCampaignStore } from '@/stores/campaignStore';
+import { storeToRefs } from 'pinia';
+import FeedingChart from './FeedingChart.vue';
+import AddFeedingModal from './AddFeedingModal.vue';
+import { Utensils, TrendingUp, DollarSign, Plus } from 'lucide-vue-next';
+
+const props = defineProps(['campaignId']);
+const isModalOpen = ref(false);
+const campaignStore = useCampaignStore();
+
+// 1. État des données depuis le store
+const { feedingStats, feedingChart, feedingHistory } = storeToRefs(campaignStore);
+
+// 2. Fonctions de chargement
+const loadStats = async () => {
+  await campaignStore.fetchFeedingStats(props.campaignId);
+};
+
+const fetchChartData = async () => {
+  await campaignStore.fetchFeedingChart(props.campaignId);
+};
+
+const fetchHistory = async () => {
+  await campaignStore.fetchFeedingHistory(props.campaignId);
+};
+
+const loadAllData = () => {
+  loadStats();
+  fetchChartData();
+  fetchHistory();
+};
+
+onMounted(loadAllData);
+</script>
+
+<template>
+  <div class="p-3 sm:p-4 md:p-6 space-y-6 sm:space-y-8 bg-[#fdfdfd]">
+    
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+       <div>
+         <h2 class="text-lg sm:text-2xl font-bold text-[#065f46]">Gestion de l'Alimentation</h2>
+         <p class="text-green-600/60 text-xs sm:text-sm font-medium">Suivi des rations et coûts alimentaires</p>
+       </div>
+       <button @click="isModalOpen = true" class="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-6 py-3 rounded-lg sm:rounded-xl font-bold flex items-center justify-center sm:justify-start gap-2 shadow-lg shadow-green-100 transition-all text-sm sm:text-base">
+         <Plus class="w-5 h-5" /> Enregistrer Distribution
+       </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase">Quantité Totale</p>
+          <p class="text-2xl font-black text-slate-800">{{ feedingStats.total_kg || 0 }} kg</p>
+        </div>
+        <Utensils class="text-green-500 w-5 h-5" />
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase">Coût Total</p>
+          <p class="text-2xl font-black text-slate-800">{{ Number(feedingStats.total_cout).toLocaleString() }} F</p>
+        </div>
+        <TrendingUp class="text-green-500 w-5 h-5" />
+      </div>
+
+      <div class="bg-blue-50/30 p-6 rounded-2xl border border-blue-100 shadow-sm flex justify-between items-center text-blue-600">
+        <div>
+          <p class="text-blue-400 text-[10px] font-bold uppercase">Coût Moyen / Kg</p>
+          <p class="text-2xl font-black text-blue-800">{{ Math.round(feedingStats.cout_moyen_kg || 0) }} F</p>
+        </div>
+        <DollarSign class="w-5 h-5" />
+      </div>
+    </div>
+
+    <div class="bg-white p-6 sm:p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+      <h3 class="font-bold text-slate-800 mb-6">Consommation Journalière</h3>
+      <FeedingChart v-if="feedingChart.labels && feedingChart.labels.length > 0" :chartData="feedingChart" />
+      <div v-else class="h-64 flex items-center justify-center text-gray-400 italic">
+        Aucune donnée de consommation sur les 7 derniers jours
+      </div>
+    </div>
+
+    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-gray-50 flex items-center gap-2">
+        <Utensils class="w-5 h-5 text-[#065f46]" />
+        <h3 class="font-bold">Historique des Distributions</h3>
+      </div>
+      
+      <div class="p-4 sm:p-6 space-y-4">
+        <div v-for="item in feedingHistory" :key="item.id" class="flex items-center justify-between bg-gray-50/50 p-4 rounded-2xl border border-gray-100 hover:bg-green-50/30 transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="bg-[#16a34a] p-3 rounded-2xl text-white"><Utensils class="w-5 h-5" /></div>
+            <div>
+              <p class="font-bold text-slate-800 text-sm sm:text-base">{{ item.nom_aliment || 'Aliment Standard' }}</p>
+              <p class="text-[10px] sm:text-[11px] text-gray-400">
+                {{ item.date_distribution ? new Date(item.date_distribution).toLocaleDateString() : '...' }} • {{ item.heure_distribution }}
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-slate-800 text-sm sm:text-base">{{ item.quantite_kg }} kg</p>
+            <p class="text-xs sm:text-sm font-bold text-[#16a34a]">{{ Number(item.prix_total).toLocaleString() }} F</p>
+          </div>
+        </div>
+
+        <div v-if="feedingHistory.length === 0" class="text-center py-10 text-gray-400 italic text-sm">
+          Aucun enregistrement trouvé.
+        </div>
+      </div>
+    </div>
+
+    <AddFeedingModal 
+      :isOpen="isModalOpen" 
+      :campaignId="campaignId"
+      @close="isModalOpen = false"
+      @refresh="loadAllData"
+    />
+
+  </div>
+</template>
