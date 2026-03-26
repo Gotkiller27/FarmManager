@@ -35,7 +35,7 @@ router.post('/', createCampaign);
 router.post('/feeding', addFeeding);
 router.post('/health-records', addHealthRecord); // <-- Celle-ci doit être bien visible
 router.post('/sujets/batch', seedSujets);
-
+router.get('/my-campaigns', requireAuth, getMyCampaigns);
 // ==========================================
 // 2. ROUTES GET SPÉCIFIQUES (DÉPARTEMENT)
 // ==========================================
@@ -72,5 +72,5 @@ router.get('/:id', getCampaignById);
 // Route pour les données du graphique financier
 router.get('/:id/financial-chart', getFinancialChartData);
 
-router.get('/my-campaigns', getMyCampaigns);
+
 export default router;
