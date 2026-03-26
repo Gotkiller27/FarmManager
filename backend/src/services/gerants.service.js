@@ -6,7 +6,7 @@ const getAllProfiles = async () => {
     SELECT u.id, u.first_name, u.last_name, u.email, u.role,
            p.age, p.tel, p.bio, p.city
     FROM gerants p 
-    JOIN users u ON p.user_id = u.id
+   LEFT JOIN users u ON p.user_id = u.id
   `);
   return rows;
 };

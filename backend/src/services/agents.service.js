@@ -3,22 +3,36 @@ import db from "../config/db.js";
 // Récupérer tous les agents avec leurs emails
 const getAllAgents = async () => {
   const [rows] = await db.query(`
-    SELECT a.*, u.email, u.first_name, u.last_name,u.role 
-    FROM agents a 
-    JOIN users u ON a.user_id = u.id
+    SELECT  u.id, u.first_name, u.last_name, u.email, u.role,
+           p.age, p.tel, p.bio, p.city
+    FROM agents p 
+    LEFT JOIN users u ON p.user_id = u.id
     WHERE u.role = 'agent'
   `);
   return rows;
 };
 
 // Créer un profil agent
-const createAgentProfile = async (user_id,agentData) => {
-  const { age, tel, bio, city } = agentData;
-  const [result] = await db.query(
-    "INSERT INTO agents (user_id, age, tel, bio, city) VALUES (?, ?, ?, ?, ?)",
-    [user_id, age, tel, bio, city]
-  );
-  return result.affectedRows > 0 ? { ...agentData } : null;
+const createAgentProfile = async (user_id, profileData) => {
+  const { age, tel, city, bio } = profileData;
+  
+  // Utilisation de ON DUPLICATE KEY UPDATE pour éviter l'erreur de clé primaire
+  const query = `
+    INSERT INTO agents (user_id, age, tel, city, bio) 
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      age = VALUES(age), 
+      tel = VALUES(tel), 
+      city = VALUES(city), 
+      bio = VALUES(bio)
+  `;
+
+  try {
+    const [result] = await db.query(query, [user_id, age, tel, city, bio]);
+    return { success: true, affectedRows: result.affectedRows };
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Mettre à jour un agent

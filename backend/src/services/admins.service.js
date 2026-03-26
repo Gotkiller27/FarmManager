@@ -1,17 +1,34 @@
 import db from "../config/db.js"; // À adapter selon ta config DB
 
+// Récupérer tous les profils avec les infos de l'utilisateur
+const getAllProfiles = async () => {
+  const [rows] = await db.query( `
+    SELECT u.id, u.first_name, u.last_name, u.email, u.role,
+           p.age, p.tel, p.bio, p.city
+    FROM users u
+   LEFT JOIN admins p  ON p.user_id = u.id
+  `);
+  return rows;
+};
+
 // Créer un nouvel administrateur
-const createAdmins = async (user_id,adminData) => {
+const createAdmins = async (user_id, profileData) => {
+  const { age, tel, city, bio } = profileData;
+  
+  // Utilisation de ON DUPLICATE KEY UPDATE pour éviter l'erreur de clé primaire
+  const query = `
+    INSERT INTO admins (user_id, age, tel, city, bio) 
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      age = VALUES(age), 
+      tel = VALUES(tel), 
+      city = VALUES(city), 
+      bio = VALUES(bio)
+  `;
+
   try {
-    const { age, tel, city, bio} = adminData;
-
-
-    const [result] = await db.query(
-      "INSERT INTO admins (user_id,age, tel, city, bio) VALUES (?, ?, ?, ?,?)",
-      [user_id,age, tel, city, bio]
-    );
-
-    return { message: "Administrateur créé avec succès" };
+    const [result] = await db.query(query, [user_id, age, tel, city, bio]);
+    return { success: true, affectedRows: result.affectedRows };
   } catch (error) {
     throw error;
   }
@@ -40,4 +57,4 @@ const updateAdmins = async (adminId, updateData) => {
 };
 
 
-export { createAdmins, updateAdmins };
+export { createAdmins, updateAdmins, getAllProfiles };
