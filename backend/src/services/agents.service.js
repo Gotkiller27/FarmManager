@@ -5,8 +5,8 @@ const getAllAgents = async () => {
   const [rows] = await db.query(`
     SELECT  u.id, u.first_name, u.last_name, u.email, u.role,
            p.age, p.tel, p.bio, p.city
-    FROM agents p 
-    LEFT JOIN users u ON p.user_id = u.id
+    FROM  users u
+    LEFT JOIN agents p ON p.user_id = u.id
     WHERE u.role = 'agent'
   `);
   return rows;

@@ -10,8 +10,9 @@ export const getAll = async (req, res, next) => {
 };
 
 export const addAgent = async (req, res, next) => {
+  const id = req.params.id; // ID de l'utilisateur pour lequel on crée le profil agent
   try {
-    const newAgent = await agentService.createAgentProfile(req.body);
+    const newAgent = await agentService.createAgentProfile(id, req.body);
     res.status(201).json({ message: "Profil Agent créé !", data: newAgent });
   } catch (error) {
     next(error);
