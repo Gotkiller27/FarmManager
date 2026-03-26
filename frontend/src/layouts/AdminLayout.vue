@@ -46,7 +46,7 @@ const sidebarItems = {
     { name: "Utilisateurs", icon: User, path: "/layout-principale/users" },
   ],
   gerant: [
-    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale" },
+    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale/dashboard-gerant" },
     { 
       name: "Départements", 
       icon: Folder, 
