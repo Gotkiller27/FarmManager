@@ -1,30 +1,66 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { useGerantStore } from '@/stores/gerantsStore.js'
 import { useAdminStore } from '@/stores/adminStore.js'
+import { useAgentsStore } from '@/stores/agentsStore'
+
 
 const authStore = useAuthStore()
+
 const gerantStore = useGerantStore()
+const agentStore = useAgentsStore()
 const adminStore = useAdminStore()
-const currentUser = computed(() =>gerantStore.gerants.find(g => g.id === authStore.user.id))
+const currentUser = computed( () => {
+  const user = authStore.user
+  console.log(user.role)
+
+  //  await gerantStore.fetchGerants();
+  
+  // await adminStore.fetchAdmins()
+  // await agentStore.fetchAgents()
+
+  switch (user.role) {
+    case 'gerant':
+      return gerantStore.gerants.find(g => g.id === user.id)
+
+    case 'admin':
+      return adminStore.admins.find(a => a.id === user.id)
+
+    case 'agent':
+      return agentStore.agents.find(a => a.id === user.id)
+
+    default:
+      return null
+  }
+   console.log(currentUser.value);
+})
 const isModalOpen = ref(false)
-console.log(authStore.user);
+// console.log(authStore.user);
 
 
 
 
 // Initialisation intelligente : évite les textes "Âge non défini" dans les inputs
-const user = ref({
-  first_name: currentUser.value?.first_name || '',
-  last_name: currentUser.value?.last_name || '',
-  email: currentUser.value?.email || '',
-  role: currentUser.value?.role || '',
-  age: currentUser.value?.age || null,
-  city: currentUser.value?.city || '',
-  tel: currentUser.value?.tel || '',
-  bio: currentUser.value?.bio || '',
+
+const user = ref({})
+watch(currentUser, (newUser) => {
+  if (newUser) {
+    user.value = {
+      first_name: newUser.first_name || '',
+      last_name: newUser.last_name || '',
+      email: newUser.email || '',
+      role: newUser.role || '',
+      age: newUser.age || null,
+      city: newUser.city || '',
+      tel: newUser.tel || '',
+      bio: newUser.bio || '',
+    }
+
+    form.value = { ...user.value, password: '' }
+  }
 })
+
 
 const form = ref({ ...user.value, password: '' })
 
@@ -42,6 +78,8 @@ const saveChanges = async () => {
       await gerantStore.createGerant(currentUser.value.id, data)
     } else if (currentUser.value.role === 'admin') {
       await adminStore.createAdmin(currentUser.value.id, data)
+    }else if(currentUser.value.role === "agent"){
+      await agentStore.createAgent(currentUser.value.id,data)
     }
 
     // Mise à jour locale de l'affichage
@@ -56,7 +94,13 @@ const saveChanges = async () => {
 
 onMounted(async () => {
   await gerantStore.fetchGerants();
-  console.log(gerantStore.gerants);
+  
+  await adminStore.fetchAdmins()
+  await agentStore.fetchAgents()
+  // console.log(agentStore.agents);
+  // console.log(currentUser.value);
+  // console.log(authStore.user)
+  console.log(adminStore.admins)
 })
 </script>
 
@@ -73,7 +117,7 @@ onMounted(async () => {
           <div
             class="h-28 w-28 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-sm"
           >
-            <span class="text-4xl font-light text-slate-300">
+            <span class="text-4xl font-light text-emerald-500">
               {{ currentUser?.first_name[0] }}{{ currentUser?.last_name[0] }}
             </span>
           </div>
@@ -126,7 +170,7 @@ onMounted(async () => {
             Biographie
           </h4>
           <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 min-h-[150px]">
-            <p v-if="currentUser?.bio" class="text-slate-600 leading-relaxed text-base font-light italic">
+            <p v-if="currentUser?.bio" class="text-slate-900 leading-relaxed text-base font-light italic">
               « {{ currentUser?.bio }} »
             </p>
             <p v-else class="text-slate-400 text-sm italic">

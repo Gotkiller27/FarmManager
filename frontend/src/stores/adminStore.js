@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createAdmin, updateAdmin } from '../services/api.js';
+import api, { createAdmin, updateAdmin } from '../services/api.js';
 
 export const useAdminStore = defineStore('adminStore', {
   state: () => ({
