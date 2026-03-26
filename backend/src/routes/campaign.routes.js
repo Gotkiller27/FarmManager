@@ -40,9 +40,9 @@ router.get('/my-campaigns', requireAuth, getMyCampaigns);
 // 2. ROUTES GET SPÉCIFIQUES (DÉPARTEMENT)
 // ==========================================
 router.post('/departments/assign-gerant', assignGerantToDept);
-// router.get('/department/:deptId', requireAuth, getCampaignsByDept);
-// router.get('/gerants', getAllGerants); // Pour remplir ton menu déroulant <select>
-// router.get('/departments/:deptId/gerant', getCurrentGerantByDept); // Pour afficher le gérant actuel
+router.get('/department/:deptId', requireAuth, getCampaignsByDept);
+router.get('/gerants', getAllGerants); // Pour remplir ton menu déroulant <select>
+router.get('/departments/:deptId/gerant', getCurrentGerantByDept); // Pour afficher le gérant actuel
 // ==========================================
 // 3. ROUTES GET PAR CAMPAGNE (:id)
 // ==========================================
