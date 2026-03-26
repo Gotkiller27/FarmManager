@@ -21,7 +21,7 @@
     </transition-group>
   </teleport>
 </template>
-git push fu
+
 <script setup>
 import { computed } from 'vue'
 import { useToastStore } from '@/stores/toast'

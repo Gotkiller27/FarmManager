@@ -43,6 +43,18 @@ export const useCampaignStore = defineStore('campaignStore', {
     error: null
   }),
 
+  getters: {
+    // Filtre les éléments dont le statut est "En cours"
+    activeCampaigns: (state) => {
+      return state.campaigns.filter(item => item.statut === 'en_cours');
+    },
+
+    // Optionnel : Compter le nombre de campagnes actives pour le badge du dashboard
+    activeCount: (state) => {
+      return state.campaigns.filter(item => item.statut === 'en_cours').length;
+    }
+  },
+
   /**
    * ACTIONS : Méthodes de manipulation des données et appels API
    */

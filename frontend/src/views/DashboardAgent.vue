@@ -10,8 +10,11 @@ import {
   Utensils,
   CheckCircle2
 } from 'lucide-vue-next';
+import { useToastStore } from '@/stores/toast';
+import Toast from '@/components/Toast.vue';
 
 const campaignStore = useCampaignStore();
+const toastStore = useToastStore();
 const loading = ref(true);
 
 onMounted(async () => {
@@ -180,8 +183,34 @@ const alertsCount = computed(() => campaignStore.agentStats?.total_malades || 0)
       </div>
     </div>
 
+    <div v-if="alertsCount > 0">
+      <button @click="showAlertToast">Afficher les alertes</button>
+    </div>
   </div>
 </template>
+
+<script>
+import { useToastStore } from '@/stores/toast';
+import Toast from '@/components/Toast.vue';
+
+export default {
+  components: { Toast },
+  setup() {
+    const toastStore = useToastStore();
+
+    const showAlertToast = () => {
+      toastStore.showToast({
+        message: 'Il y a des urgences à traiter.',
+        type: 'warning',
+      });
+    };
+
+    return {
+      showAlertToast,
+    };
+  },
+};
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,800&family=JetBrains+Mono:wght@700&display=swap');
