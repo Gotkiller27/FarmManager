@@ -1,5 +1,16 @@
 import * as adminService from "../services/admins.service.js";
 
+
+
+export const getAll = async (req, res, next) => {
+  try {
+    const profiles = await adminService.getAllProfiles();
+    res.status(200).json(profiles);
+  } catch (error) {
+    next(error);
+  }
+};
+
 //Complèter un profil administrateur
 const createAdmin = async (req, res, next) => {
   try {
