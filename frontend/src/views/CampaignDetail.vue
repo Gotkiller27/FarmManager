@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted, markRaw } from 'vue';
+import { ref, onMounted, markRaw, computed } from 'vue'; // Ajout de computed
 import { useRoute } from 'vue-router';
-// Ajout de l'icône Users pour l'équipe
-import { LayoutDashboard, Utensils, DollarSign, ChevronLeft, Bird, HeartPulse, ShoppingCart, Users } from 'lucide-vue-next';
-import { useCampaignStore } from '@/stores/campaignStore'
+import { useCampaignStore } from '@/stores/campaignStore.js';
+import { useAuthStore } from '@/stores/auth.js'; // Import de ton store d'auth
+import { 
+  LayoutDashboard, Utensils, DollarSign, ChevronLeft, 
+  Bird, HeartPulse, ShoppingCart, Users 
+} from 'lucide-vue-next';
 
 // Import des sous-composants
 import OverviewTab from '@/components/campaign/OverviewTab.vue';
@@ -12,27 +15,52 @@ import FinanceTab from '@/components/campaign/FinanceTab.vue';
 import SujetsTab from '@/components/campaign/SujetsTab.vue';
 import HealthTab from '@/components/campaign/HealthTab.vue';
 import SalesTab from '@/components/campaign/SalesTab.vue';
-// Nouvel import pour l'équipe
 import TeamTab from '@/components/campaign/TeamTab.vue'; 
 
 const route = useRoute();
 const campaignId = route.params.id;
 const campaignStore = useCampaignStore();
+const authStore = useAuthStore(); // Instance du store auth
 
-// Gestion des onglets
 const activeTabId = ref('overview');
-const tabs = [
+
+// 1. Définition de tous les onglets avec une restriction optionnelle
+const allTabs = [
   { id: 'overview', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(OverviewTab) },
   { id: 'sujets', name: 'Sujets (QR)', icon: Bird, component: markRaw(SujetsTab) },
   { id: 'health', name: 'Santé', icon: HeartPulse, component: markRaw(HealthTab) },
   { id: 'feeding', name: 'Alimentation', icon: Utensils, component: markRaw(FeedingTab) },
-  { id: 'finance', name: 'Finances', icon: DollarSign, component: markRaw(FinanceTab) },
+  { 
+    id: 'finance', 
+    name: 'Finances', 
+    icon: DollarSign, 
+    component: markRaw(FinanceTab), 
+    restricted: true // Seuls les admins/gérants voient ça
+  },
   { id: 'sales', name: 'Ventes', icon: ShoppingCart, component: markRaw(SalesTab) },
-  // AJOUT DE L'ONGLET ÉQUIPE
-  { id: 'team', name: 'Équipe', icon: Users, component: markRaw(TeamTab) }, 
+  { 
+    id: 'team', 
+    name: 'Équipe', 
+    icon: Users, 
+    component: markRaw(TeamTab), 
+    restricted: true // Seuls les admins/gérants voient ça
+  }, 
 ];
 
-const currentComponent = ref(tabs[0].component);
+// 2. Filtrage des onglets selon le rôle
+const filteredTabs = computed(() => {
+  const role = authStore.user?.role; // On récupère le rôle de l'utilisateur
+  
+  if (role === 'agent') {
+    // Si c'est un agent, on retire les onglets restreints
+    return allTabs.filter(tab => !tab.restricted);
+  }
+  
+  // Sinon (admin/gérant), on affiche tout
+  return allTabs;
+});
+
+const currentComponent = ref(allTabs[0].component);
 
 const changeTab = (tab) => {
   activeTabId.value = tab.id;
@@ -60,11 +88,11 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col md:flex-row bg-white rounded-lg sm:rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden gap-0 md:gap-0">
+    <div class="flex-1 flex flex-col md:flex-row bg-white rounded-lg sm:rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
       <aside class="w-full md:w-64 bg-gray-50/50 border-b md:border-b-0 md:border-r border-gray-100 p-3 sm:p-4">
         <nav class="space-y-1">
           <button 
-            v-for="tab in tabs" :key="tab.id"
+            v-for="tab in filteredTabs" :key="tab.id"
             @click="changeTab(tab)"
             :class="[
               'w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-2xl text-xs sm:text-sm font-bold transition-all',
@@ -94,6 +122,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Tes styles restent identiques */
 .fade-enter-active, .fade-leave-active { 
   transition: all 0.25s ease-out; 
 }

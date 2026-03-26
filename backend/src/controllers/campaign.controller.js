@@ -596,15 +596,12 @@ export const getMyCampaigns = async (req, res) => {
   const userId = req.user.userId; // On récupère l'ID de l'agent connecté
   
   try {
-    const query = `
-      SELECT c.*, d.nom as nom_departement,
-      (SELECT COUNT(*) FROM sujets WHERE campagne_id = c.id) as nb_sujets
-      FROM campagnes c
-      INNER JOIN campagne_agents ca ON c.id = ca.campagne_id
-      LEFT JOIN departements d ON c.departement_id = d.id
-      WHERE ca.agent_id = ?
-      ORDER BY c.date_debut DESC
-    `;
+   const query = `
+  SELECT c.*, ca.quota_initial, ca.sujets_actuels 
+  FROM campagnes c
+  INNER JOIN campagne_agents ca ON c.id = ca.campagne_id
+  WHERE ca.agent_id = ?
+`;
     
     const [rows] = await db.execute(query, [userId]);
     res.status(200).json(rows);
