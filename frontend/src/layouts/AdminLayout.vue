@@ -59,7 +59,7 @@ const sidebarItems = {
     { name: "Agents", icon: Users, path: "/layout-principale/agents" },
   ],
   agent: [
-    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale" },
+    { name: "Tableau de bord", icon: LayoutDashboard, path: "/layout-principale/dashboard-agent" },
     { name: "Mes campagnes", icon: ClipboardList, path: "/layout-principale/my-campaigns" },
   ]
 };

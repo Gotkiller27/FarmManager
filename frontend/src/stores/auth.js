@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '@/services/api';
+import { useToastStore } from './toast';
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
@@ -12,25 +13,31 @@ export const useAuthStore = defineStore('auth', {
     return {
       user: user,
       token: localStorage.getItem('token') || null,
+      loading: false,
+      error: null,
     };
   },
   actions: {
     async login(credentials) {
-      // 1. On récupère la réponse de l'API
-      const { data } = await api.post('/auth/login', credentials);
-      
-      // 2. CORRECTION ICI : Ton backend envoie loginData
-      // On extrait user et token depuis data.loginData
-      const { user, token } = data.loginData; 
-
-      // 3. On met à jour le state de Pinia
-      this.user = user;
-      this.token = token;
-
-      // 4. On stocke proprement dans le localStorage
-      // On utilise JSON.stringify(user) car c'est un objet
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      this.loading = true;
+      this.error = null;
+      const toastStore = useToastStore();
+      try {
+        const response = await api.post('/auth/login', credentials);
+        this.user = response.data.user;
+        this.token = response.data.token;
+        localStorage.setItem('token', this.token);
+        return response.data;
+      } catch (err) {
+        this.error = 'Identifiants incorrects';
+        toastStore.showToast({
+          message: 'Identifiants incorrects. Veuillez réessayer.',
+          type: 'error',
+        });
+        throw err;
+      } finally {
+        this.loading = false;
+      }
     },
     logout() {
       this.user = null;

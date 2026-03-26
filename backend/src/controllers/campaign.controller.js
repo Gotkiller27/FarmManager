@@ -2,8 +2,27 @@ import db from '../config/db.js';
 
 export const getCampaignsByDept = async (req, res) => {
   const { deptId } = req.params;
+  const userId = req.user.userId;
+  const userRole = req.user.role;
   
   try {
+    // Si l'utilisateur est un agent, ne montrer que les campagnes assignées
+    if (userRole.toLowerCase() === 'agent') {
+      const query = `
+        SELECT c.*, 
+        (SELECT SUM(montant) FROM depenses_campagne WHERE campagne_id = c.id) as total_depenses,
+        (SELECT COUNT(*) FROM campagne_agents WHERE campagne_id = c.id) as nb_agents
+        FROM campagnes c 
+        INNER JOIN campagne_agents ca ON c.id = ca.campagne_id
+        WHERE c.departement_id = ? AND ca.agent_id = ?
+        ORDER BY c.date_debut DESC
+      `;
+      
+      const [rows] = await db.execute(query, [deptId, userId]);
+      return res.status(200).json(rows);
+    }
+    
+    // Pour les admins et gérants, montrer toutes les campagnes du département
     const query = `
       SELECT c.*, 
       (SELECT SUM(montant) FROM depenses_campagne WHERE campagne_id = c.id) as total_depenses,
@@ -572,3 +591,47 @@ export const getAllGerants = async (req, res) => {
 };
 
 
+// Nouvelle fonction pour le menu "Mes campagnes" de la sidebar agent
+export const getMyCampaigns = async (req, res) => {
+  const userId = req.user.userId; // On récupère l'ID de l'agent connecté
+  
+  try {
+    const query = `
+      SELECT c.*, d.nom as nom_departement,
+      (SELECT COUNT(*) FROM sujets WHERE campagne_id = c.id) as nb_sujets
+      FROM campagnes c
+      INNER JOIN campagne_agents ca ON c.id = ca.campagne_id
+      LEFT JOIN departements d ON c.departement_id = d.id
+      WHERE ca.agent_id = ?
+      ORDER BY c.date_debut DESC
+    `;
+    
+    const [rows] = await db.execute(query, [userId]);
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération de vos campagnes", error: error.message });
+  }
+};
+
+export const getAgentGlobalStats = async (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM campagne_agents WHERE agent_id = ?) as nb_missions,
+        (SELECT COUNT(*) FROM sujets s 
+         INNER JOIN campagne_agents ca ON s.campagne_id = ca.campagne_id 
+         WHERE ca.agent_id = ? AND s.statut = 'mort') as total_morts,
+        (SELECT COUNT(*) FROM sujets s 
+         INNER JOIN campagne_agents ca ON s.campagne_id = ca.campagne_id 
+         WHERE ca.agent_id = ?) as total_sujets,
+        (SELECT COUNT(*) FROM feedings f 
+         INNER JOIN campagne_agents ca ON f.campagne_id = ca.campagne_id 
+         WHERE ca.agent_id = ? AND f.date_distribution = CURDATE()) as distributions_jour
+    `;
+    const [rows] = await db.execute(query, [userId, userId, userId, userId]);
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
