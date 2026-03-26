@@ -146,6 +146,9 @@ const alertsCount = computed(() => campaignStore.agentStats?.total_malades || 0)
               <ArrowRight class="w-5 h-5" />
             </router-link>
           </div>
+          <div class="h-80">
+            <Line v-if="isLoaded" :data="chartData" :options="chartOptions" />
+          </div>
         </div>
         
         <div v-else-if="loading" class="space-y-4">
@@ -179,3 +182,23 @@ const alertsCount = computed(() => campaignStore.agentStats?.total_malades || 0)
 
   </div>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,800&family=JetBrains+Mono:wght@700&display=swap');
+
+:deep(*) {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+</style>

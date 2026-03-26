@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createAdmin, updateAdmin } from '../services/api.js';
+import api, { createAdmin, updateAdmin } from '../services/api.js';
 
 export const useAdminStore = defineStore('adminStore', {
   state: () => ({
@@ -40,6 +40,7 @@ export const useAdminStore = defineStore('adminStore', {
       try {
         const response = await updateAdmin(adminId, updateData);
         const index = this.admins.findIndex(admin => admin.id === adminId);
+        
         if (index !== -1) {
           this.admins[index] = response;
         }
